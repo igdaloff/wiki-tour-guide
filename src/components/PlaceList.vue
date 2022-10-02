@@ -2,8 +2,10 @@
   <div>
     <ul>
       <li v-for="(place, index) in placeDataArr" :key="index">
+        <img :src="place.imgUrl" alt="" />
         <h2>{{ place.name }}</h2>
         <p>{{ place.description }}</p>
+        <a :href="place.url">View on Wikipedia</a>
       </li>
     </ul>
   </div>
@@ -29,7 +31,7 @@ export default {
       this.long = position.coords.longitude;
 
       const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY;
-      const radius = 2000;
+      const radius = 1500;
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       const url =
@@ -57,20 +59,29 @@ export default {
         })
 
         // When above API call completes, loop through our array of place names (created above) and query Wikipedia API for each.
+        // Relevant API docs:
+        // - Thumbnail: https://www.mediawiki.org/wiki/Extension:PageImages
+        // - First paragraph: https://www.mediawiki.org/wiki/API:Get_the_contents_of_a_page#Method_3:_Use_the_TextExtracts_API
+        // - Url: https://www.mediawiki.org/w/api.php?action=help&modules=query%2Binfo
         .then((allPlacesArr) => {
           for (let i = 0; i < allPlacesArr.length; i++) {
             axios
               .get(
-                `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=10&exlimit=1&titles=${allPlacesArr[i]}&explaintext=1&formatversion=2&format=json&origin=*`
+                `https://en.wikipedia.org/w/api.php?action=query&prop=info|extracts|pageimages&inprop=url&exsentences=10&exlimit=1&titles=${allPlacesArr[i]}&explaintext=1&formatversion=2&format=json&origin=*&pithumbsize=500`
               )
               .then((response) => {
                 const placeName = response.data.query.pages[0].title;
                 const placeDescription = response.data.query.pages[0].extract;
+                const placeUrl = response.data.query.pages[0].canonicalurl;
+                const placeImgUrl = response.data.query.pages[0].thumbnail.source;
 
+                console.log(response.data.query.pages[0]);
                 // Store result in an object to be appended to array below
                 const placeDataObj = {
                   name: placeName,
                   description: placeDescription,
+                  url: placeUrl,
+                  imgUrl: placeImgUrl,
                 };
 
                 // Add name and description object to array, only if description exists and is substantial (sometimes Wikipedia returns
