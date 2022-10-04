@@ -1,0 +1,93 @@
+:root{
+  --black: #222;
+  --white: #fff;
+  --grey: #d9d9d9;
+  --display: 'EB Garamond', georgia, serif; 
+  --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --serif: Georgia, Times, serif; 
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html, body{
+  height: 100%;
+}
+
+html{ 
+  line-height: calc(1em + 0.5rem);
+  -webkit-text-size-adjust: 100%;  
+}
+
+body{
+  background-color: var(--black);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+main{
+  display: block;
+}
+
+h1, h2, h3, h4, h5, h6, li, p {
+  overflow-wrap: break-word;  
+}
+
+h1{
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 2.7em;
+  margin-bottom: 0.4em;
+}
+
+h2{
+  font-family: var(--sans);
+  font-size: 1.25em;
+  font-weight: 200;
+}
+
+p{
+  font-family: var(--serif);
+}
+
+ol, ul {
+  list-style: none;
+  padding: 0;
+}
+
+a{
+  background-color: transparent;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+img {
+  max-width: 100%;
+  border-style: none;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+}

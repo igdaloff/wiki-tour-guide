@@ -1,17 +1,16 @@
 <template>
-  <PlaceList />
+  <router-view />
 </template>
 
 <script>
-import PlaceList from './components/PlaceList.vue'
+import PlaceList from "./views/PlaceList.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    PlaceList
-  }
-}
+    PlaceList,
+  },
+};
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

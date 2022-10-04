@@ -1,0 +1,30 @@
+@mixin button($color: var(--white)) {
+  display: inline-block;
+  background: $color;
+  color: var(--black);
+  border-radius: 6px;
+  text-decoration: none;
+  padding: 0.8em 2em;
+  transition: 0.25s ease;
+
+  &:hover {
+    background: darken(#fff, 20%);
+  }
+}
+
+@mixin icon-button {
+  @include button;
+  display: inline-flex;
+  align-items: center;
+
+  span,
+  img {
+    margin-inline-end: 0.5em;
+    font-size: 1.1em;
+  }
+}
+
+@mixin container {
+  max-width: 480px;
+  padding: 0 1.5em;
+}
