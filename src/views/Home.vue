@@ -33,6 +33,13 @@
     padding: 0 1em;
   }
 
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 2.7em;
+    margin-bottom: 0.4em;
+  }
+
   h2 {
     margin-bottom: 3em;
     padding: 0 2em;

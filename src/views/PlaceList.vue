@@ -1,23 +1,101 @@
 <template>
+  <Header />
   <div class="place-list">
     <ul>
       <li v-for="(place, index) in placeMetadata" :key="index">
         <div class="place-image-container">
           <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" />
         </div>
-        <h2>{{ place.name }}</h2>
-        <p>{{ place.description }}</p>
+        <div class="place-header">
+          <span class="play material-symbols-outlined">play_circle</span>
+          <div>
+            <h2>{{ place.name }}</h2>
+            <a href="" class="distance"
+              >135 ft away
+              <span class="material-symbols-outlined"> arrow_forward </span></a
+            >
+          </div>
+        </div>
+
+        <p class="place-description">{{ place.description }}</p>
         <a :href="place.url">View on Wikipedia</a>
       </li>
     </ul>
   </div>
 </template>
 
+<style lang="scss">
+@import "../assets/mixins.scss";
+
+.place-list {
+  @include container;
+}
+
+.place-image-container {
+  text-align: center;
+  background: var(--grey);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 250px;
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+.place-header {
+  display: flex;
+  padding: 1em 0;
+
+  h2 {
+    font-weight: 500;
+  }
+}
+
+.distance {
+  color: var(--dark-grey);
+  font-size: 0.9em;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  line-height: 1.3;
+
+  span {
+    font-size: 1.1em;
+    padding-left: 0.2em;
+  }
+}
+
+.play {
+  font-variation-settings: "FILL" 1;
+  font-size: 3em;
+  padding-right: 0.15em;
+  cursor: pointer;
+  @include hover-transition;
+
+  &:hover {
+    color: var(--grey);
+  }
+}
+
+.place-description {
+  // overflow: hidden;
+  // max-height: 0;
+  // transition: 0.7 ease;
+}
+</style>
+
 <script>
 import axios from "axios"
+import Header from "../components/Header"
 
 export default {
   name: "PlaceList",
+
+  components: {
+    Header,
+  },
 
   data() {
     return {
@@ -26,6 +104,7 @@ export default {
       long: "",
     }
   },
+
   async created() {
     // If geolocation request is successful (if user opts into browser prompt), run the following code. Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
@@ -66,7 +145,7 @@ export default {
       if (cachedNearbyPlaces) {
         nearbyPlaces = cachedNearbyPlaces
         this.placeMetadata = cachedPlaceMetadata
-        console.log("using cache: ", cachedPlaceMetadata)
+
         // If cached data does not exist, we make our 2 get requests for the data
       } else {
         axios
@@ -84,7 +163,7 @@ export default {
               `place-list-cache-${latCache}.${longCache}`,
               JSON.stringify(nearbyPlaces)
             )
-            console.log("fetching new: ", nearbyPlaces)
+
             return nearbyPlaces
           })
 
@@ -142,21 +221,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss">
-@import "../assets/mixins.scss";
-
-.place-list {
-  @include container;
-}
-
-.place-image-container {
-  text-align: center;
-  background: var(--grey);
-  img {
-    display: block;
-    margin: 0 auto;
-    max-height: 250px;
-  }
-}
-</style>
