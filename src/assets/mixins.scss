@@ -5,6 +5,8 @@
   border-radius: 6px;
   text-decoration: none;
   padding: 0.8em 2em;
+  font-family: var(--sans);
+  font-size: 1.1em;
   @include hover-transition;
 
   &:hover {
@@ -25,7 +27,7 @@
 }
 
 @mixin container {
-  max-width: 420px;
+  max-width: 450px;
   margin: 0 auto;
   padding: 0 1em;
 }

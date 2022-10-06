@@ -2,7 +2,7 @@
   <div class="home">
     <header>
       <h1 class="header">Wiki Walking Guide</h1>
-      <h2>Read-aloud Wikipedia pages of interesting places near you.</h2>
+      <h2>Read-aloud Wikipedia pages of notable places near you.</h2>
     </header>
     <div>
       <p>To get started...</p>
@@ -29,15 +29,11 @@
 
   @include container;
 
-  header {
-    padding: 0 1em;
-  }
-
   h1 {
     font-family: var(--display);
     font-weight: 400;
-    font-size: 2.7em;
-    margin-bottom: 0.4em;
+    font-size: 2.3em;
+    margin-bottom: 0.25em;
   }
 
   h2 {
