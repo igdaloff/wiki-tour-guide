@@ -3,29 +3,35 @@
   <div class="place-list">
     <ul>
       <li v-for="(place, index) in placeMetadata" :key="index">
-        <div class="place-image-container">
-          <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" />
+        <div class="place-image-container" @click="showDescription">
+          <img
+            :src="place.imgUrl"
+            :alt="`Photo of ${place.name}`"
+            :data-name="place.name"
+          />
         </div>
         <div class="place-header">
           <span class="play material-symbols-outlined">play_circle</span>
-          <div>
-            <h2>{{ place.name }}</h2>
-            <a href="" class="distance"
-              >135 ft away
-              <span class="material-symbols-outlined"> arrow_forward </span></a
-            >
+          <div class="place-header-meta">
+            <h2 @click="showDescription" :data-name="place.name">{{ place.name }}</h2>
+            <a href="" class="distance">
+              135 ft away
+              <span class="material-symbols-outlined"> arrow_forward </span>
+            </a>
           </div>
         </div>
 
-        <p class="place-description">{{ place.description }}</p>
-        <a :href="place.url">View on Wikipedia</a>
+        <div class="place-description" :data-name="place.name">
+          <a :href="place.url">Read Full Wikipedia Entry</a>
+          <p>{{ place.description }}</p>
+        </div>
       </li>
     </ul>
   </div>
 </template>
 
 <style lang="scss">
-@import "../assets/mixins.scss";
+@import '../assets/mixins.scss';
 
 .place-list {
   @include container;
@@ -53,6 +59,12 @@
   }
 }
 
+.place-header-meta {
+  justify-content: center;
+  flex-direction: column;
+  display: flex;
+}
+
 .distance {
   color: var(--dark-grey);
   font-size: 0.9em;
@@ -68,7 +80,7 @@
 }
 
 .play {
-  font-variation-settings: "FILL" 1;
+  font-variation-settings: 'FILL' 1;
   font-size: 3em;
   padding-right: 0.15em;
   cursor: pointer;
@@ -80,18 +92,35 @@
 }
 
 .place-description {
-  // overflow: hidden;
-  // max-height: 0;
-  // transition: 0.7 ease;
+  overflow: hidden;
+  max-height: 0;
+  transition: 0.7s ease;
+
+  &.show {
+    max-height: 1000px;
+    transition: 0.7s ease;
+    position: relative;
+  }
+
+  p {
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid;
+  }
+
+  a {
+    display: block;
+    padding-bottom: 1em;
+  }
 }
 </style>
 
 <script>
-import axios from "axios"
-import Header from "../components/Header"
+import axios from 'axios'
+import Header from '../components/Header'
 
 export default {
-  name: "PlaceList",
+  name: 'PlaceList',
 
   components: {
     Header,
@@ -100,8 +129,8 @@ export default {
   data() {
     return {
       placeMetadata: [],
-      lat: "",
-      long: "",
+      lat: '',
+      long: '',
     }
   },
 
@@ -119,13 +148,13 @@ export default {
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       const url =
-        "https://api.opentripmap.com/0.1/en/places/radius?radius=" +
+        'https://api.opentripmap.com/0.1/en/places/radius?radius=' +
         radius +
-        "&lon=" +
+        '&lon=' +
         this.long +
-        "&lat=" +
+        '&lat=' +
         this.lat +
-        "&src_geom=wikidata&src_attr=wikidata&limit=20&apikey=" +
+        '&src_geom=wikidata&src_attr=wikidata&limit=20&apikey=' +
         API_KEY
 
       let nearbyPlaces = []
@@ -155,7 +184,7 @@ export default {
 
             // Turn returned object into an array
             for (const place in allPlaces) {
-              nearbyPlaces.push(allPlaces[place].properties.name.replace(/ /g, "_"))
+              nearbyPlaces.push(allPlaces[place].properties.name.replace(/ /g, '_'))
             }
 
             // Cache this array using lat/long as key
@@ -218,6 +247,15 @@ export default {
     // Geolocation API the causes location browser prompt. We wait for user to opt in (success) before running success() function above
     // TODO: I HARDCODED THE MAXIMUM AGE (CACHE) SO THAT PAGE RELOAD WOULD HAPPEN QUICKER - HOW CAN WE ALLOW USER TO FORCE GETTING NEW COORDS?
     navigator.geolocation.getCurrentPosition(success, error, { maximumAge: 360000 })
+  },
+  methods: {
+    showDescription(e) {
+      const placeName = e.target.getAttribute('data-name')
+      const descriptionElement = document.querySelector(
+        `.place-description[data-name='${placeName}']`
+      )
+      descriptionElement.classList.add('show')
+    },
   },
 }
 </script>
