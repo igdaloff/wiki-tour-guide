@@ -11,7 +11,11 @@
           />
         </div>
         <div class="place-header">
-          <span class="play material-symbols-outlined">play_circle</span>
+          <span
+            class="play material-symbols-outlined"
+            @click="speakDescription(place.description, $event)"
+            >play_circle</span
+          >
           <div class="place-header-meta">
             <h2 @click="showDescription" :data-name="place.name">{{ place.name }}</h2>
             <a href="" class="distance">
@@ -79,7 +83,8 @@
   }
 }
 
-.play {
+.play,
+.pause {
   font-variation-settings: 'FILL' 1;
   font-size: 3em;
   padding-right: 0.15em;
@@ -255,6 +260,21 @@ export default {
         `.place-description[data-name='${placeName}']`
       )
       descriptionElement.classList.add('show')
+    },
+    speakDescription(textToSay, event) {
+      let utterance = new SpeechSynthesisUtterance(textToSay)
+
+      if (event.target.classList.contains('play')) {
+        window.speechSynthesis.cancel()
+        window.speechSynthesis.speak(utterance)
+        event.target.textContent = 'pause_circle'
+        event.target.classList.add('pause')
+        event.target.classList.remove('play')
+      } else {
+        window.speechSynthesis.pause()
+        event.target.textContent = 'play_circle'
+        event.target.classList.add('play')
+      }
     },
   },
 }
