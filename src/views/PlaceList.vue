@@ -56,7 +56,7 @@
 
 .place-header {
   display: flex;
-  padding: 1em 0;
+  padding: 1em 0 2em;
 
   h2 {
     font-weight: 500;

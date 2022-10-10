@@ -26,9 +26,8 @@ html{
 }
 
 body{
-  background-color: var(--black);
-  color: var(--white);
-  -webkit-font-smoothing: antialiased;
+  background-color: var(--white);
+  color: var(--black);
   margin: 0;
 }
 
@@ -48,7 +47,7 @@ h1{
 h2{
   font-family: var(--sans);
   font-size: 1.25em;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 p{

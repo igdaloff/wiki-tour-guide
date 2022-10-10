@@ -17,7 +17,7 @@
 <script></script>
 
 <style lang="scss">
-@import "../assets/mixins.scss";
+@import '../assets/mixins.scss';
 
 .home {
   text-align: center;
@@ -26,27 +26,27 @@
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-
   @include container;
 
   h1 {
     font-family: var(--display);
-    font-weight: 400;
+    font-weight: 500;
     font-size: 2.3em;
-    margin-bottom: 0.25em;
   }
 
   h2 {
-    margin-bottom: 3em;
+    margin: 1em 0 3em;
     padding: 0 2em;
+    letter-spacing: 0.01em;
   }
 
   p {
     display: block;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
     font-weight: 200;
     font-size: 1.25em;
     font-family: var(--sans);
+    letter-spacing: 0.01em;
   }
 
   a {

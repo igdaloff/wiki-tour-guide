@@ -1,16 +1,17 @@
-@mixin button($color: var(--white)) {
+@mixin button($color: var(--white), $bg-color: (var(--black))) {
   display: inline-block;
-  background: $color;
-  color: var(--black);
-  border-radius: 6px;
+  background: $bg-color;
+  color: $color;
+  border-radius: 8px;
   text-decoration: none;
-  padding: 0.8em 2em;
+  padding: 0.8em 1.5em;
   font-family: var(--sans);
   font-size: 1.1em;
+  box-shadow: 0 0 0 2px $bg-color, inset 0 0 0 1px $color;
   @include hover-transition;
 
   &:hover {
-    background: var(--grey)
+    background: var(--dark-grey)
   }
 }
 
