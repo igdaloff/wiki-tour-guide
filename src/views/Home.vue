@@ -43,9 +43,8 @@
   p {
     display: block;
     margin-bottom: 1em;
-    font-weight: 200;
+    font-weight: 300;
     font-size: 1.25em;
-    font-family: var(--sans);
     letter-spacing: 0.01em;
   }
 

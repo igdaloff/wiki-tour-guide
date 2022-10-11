@@ -18,15 +18,15 @@
           >
           <div class="place-header-meta">
             <h2 @click="showDescription" :data-name="place.name">{{ place.name }}</h2>
-            <a href="" class="distance">
-              135 ft away
-              <span class="material-symbols-outlined"> arrow_forward </span>
-            </a>
+            <div class="distance">
+              <a :href="place.mapUrl"> {{ place.distance }} mi away </a>
+              <span class="material-symbols-outlined">directions_walk</span>
+            </div>
           </div>
         </div>
 
         <div class="place-description" :data-name="place.name">
-          <a :href="place.url">Read Full Wikipedia Entry</a>
+          <a :href="place.wikiUrl">Read on Wikipedia</a>
           <p>{{ place.description }}</p>
         </div>
       </li>
@@ -51,15 +51,17 @@
   img {
     display: block;
     margin: 0 auto;
+    cursor: pointer;
   }
 }
 
 .place-header {
   display: flex;
-  padding: 1em 0 2em;
+  padding: calc(0.25em * var(--base)) 0 calc(1.5em * var(--base));
 
   h2 {
     font-weight: 500;
+    cursor: pointer;
   }
 }
 
@@ -78,8 +80,17 @@
   line-height: 1.3;
 
   span {
-    font-size: 1.1em;
-    padding-left: 0.2em;
+    font-size: 1.2em;
+    padding-left: 1px;
+    padding-top: 2px;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -92,7 +103,7 @@
   @include hover-transition;
 
   &:hover {
-    color: var(--grey);
+    color: var(--dark-grey);
   }
 }
 
@@ -149,7 +160,7 @@ export default {
       const longCache = this.long.toFixed(2)
 
       const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY
-      const radius = 1000
+      const radius = 5000
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       const url =
@@ -210,26 +221,63 @@ export default {
             for (let i = 0; i < nearbyPlaces.length; i++) {
               axios
                 .get(
-                  `https://en.wikipedia.org/w/api.php?action=query&prop=info|extracts|pageimages&inprop=url&exsentences=10&exlimit=1&titles=${nearbyPlaces[i]}&explaintext=1&formatversion=2&format=json&origin=*&pithumbsize=500`
+                  `https://en.wikipedia.org/w/api.php?action=query&prop=info|extracts|pageimages|coordinates&inprop=url&exsentences=10&exlimit=1&titles=${nearbyPlaces[i]}&explaintext=1&formatversion=2&format=json&origin=*&pithumbsize=500`
                 )
                 .then((response) => {
-                  const placeName = response.data.query.pages[0].title
-                  const placeDescription = response.data.query.pages[0].extract
-                  const placeUrl = response.data.query.pages[0].canonicalurl
-                  const placeImgUrl = response.data.query.pages[0].thumbnail.source
+                  const placeData = response.data.query.pages[0]
+                  const placeName = placeData.title
+                  const placeDescription = placeData.extract
+                  const placeWikiUrl = placeData.canonicalurl
+                  const placeImgUrl = placeData.thumbnail.source
+                  const placeLat = placeData.coordinates[0].lat
+                  const placeLong = placeData.coordinates[0].lon
+                  const placeMapUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
+                  const distanceFromUser = getDistanceFromLatLong(
+                    this.lat,
+                    this.long,
+                    placeLat,
+                    placeLong
+                  )
+
+                  // Get distance between user and place
+                  function getDistanceFromLatLong(lat1, long1, lat2, long2) {
+                    const R = 6371 // Radius of the earth in km!
+                    const dLat = deg2rad(lat2 - lat1) // deg2rad below
+                    const dLong = deg2rad(long2 - long1)
+                    const a =
+                      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(deg2rad(lat1)) *
+                        Math.cos(deg2rad(lat2)) *
+                        Math.sin(dLong / 2) *
+                        Math.sin(dLong / 2)
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                    const d = (R * c * 0.621371).toFixed(2) // Distance in mi
+                    return d
+                  }
+
+                  function deg2rad(deg) {
+                    return deg * (Math.PI / 180)
+                  }
 
                   // Store result in an object to be appended to array below
                   const placeDataObj = {
                     name: placeName,
                     description: placeDescription,
-                    url: placeUrl,
+                    wikiUrl: placeWikiUrl,
                     imgUrl: placeImgUrl,
+                    mapUrl: placeMapUrl,
+                    distance: distanceFromUser,
                   }
 
                   // Add name and description object to array, only if description exists and is substantial (sometimes Wikipedia returns
                   // a description like "Gateway Theater may refer to" when it's unsure of the query you're looking for. We don't want to show those.)
                   if (placeDescription && placeDescription.length > 40) {
                     this.placeMetadata.push(placeDataObj)
+
+                    // Sort by distance
+                    this.placeMetadata.sort(
+                      (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+                    )
                   }
 
                   // Cache place data in localstorage
