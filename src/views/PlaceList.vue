@@ -264,7 +264,10 @@ export default {
                 .then((response) => {
                   const placeData = response.data.query.pages[0]
                   const placeName = placeData.title
-                  const placeDescription = placeData.extract
+                  const placeDescription = placeData.extract.replace(
+                    /(?<!=)=.*=(?!=)/gm, //Section headers in the wikipedia extract are surrounded by two equal signs; this removes the headers entirely as it sounds strange when they're read aloud
+                    ''
+                  )
                   const placeWikiUrl = placeData.canonicalurl
                   const placeImgUrl = placeData.thumbnail.source
                   const placeLat = placeData.coordinates[0].lat
