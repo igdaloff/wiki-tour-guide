@@ -5,7 +5,7 @@
       <h2>Read-aloud Wikipedia pages of notable places near you.</h2>
     </header>
     <div>
-      <p>To get started...</p>
+      <span class="get-started">To get started...</span>
       <router-link to="/list">
         <span class="material-symbols-outlined">location_searching</span>
         Share My Location
@@ -40,16 +40,16 @@
     letter-spacing: 0.01em;
   }
 
-  p {
-    display: block;
-    margin-bottom: 1em;
-    font-weight: 300;
-    font-size: 1.25em;
-    letter-spacing: 0.01em;
-  }
-
   a {
     @include icon-button;
   }
+}
+
+.get-started {
+  display: block;
+  margin-bottom: 1em;
+  font-weight: 300;
+  font-size: 1.25em;
+  letter-spacing: 0.01em;
 }
 </style>

@@ -1,8 +1,14 @@
 <template>
   <Header />
-  <div class="place-list">
-    <ul>
-      <li v-for="(place, index) in placeMetadata" :key="index">
+  <div class="place-list" :id="loading ? 'loading' : 'loaded'">
+    <transition-group
+      appear
+      @before-enter="beforeEnter"
+      @enter="enter"
+      tag="ul"
+      name="place-list"
+    >
+      <li v-for="(place, index) in placeMetadata" :key="index" :data-index="index">
         <div class="place-image-container" @click="showDescription">
           <img
             :src="place.imgUrl"
@@ -30,13 +36,22 @@
           <p>{{ place.description }}</p>
         </div>
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>
 
 <style lang="scss">
 @import '../assets/mixins.scss';
 
+#loading {
+  opacity: 0;
+  overflow: hidden; //To hide scrollbars during loading
+}
+
+#loaded {
+  opacity: 1;
+  transition: 2s;
+}
 .place-list {
   @include container;
 }
@@ -133,6 +148,7 @@
 
 <script>
 import axios from 'axios'
+import gsap from 'gsap'
 import Header from '../components/Header'
 
 export default {
@@ -142,11 +158,32 @@ export default {
     Header,
   },
 
+  //Loading transitions for place list items
+  setup() {
+    const beforeEnter = (el) => {
+      el.style.transform = 'translateY(20px)'
+      el.style.opacity = 0
+    }
+    const enter = (el, done) => {
+      // First argument, el, is element we're animating; second element contains our animation properties
+      gsap.to(el, {
+        duration: 0.8,
+        y: 0,
+        opacity: 1,
+        onComplete: done,
+        delay: el.dataset.index * 0.2,
+      })
+    }
+
+    return { beforeEnter, enter }
+  },
+
   data() {
     return {
       placeMetadata: [],
       lat: '',
       long: '',
+      loading: true,
     }
   },
 
@@ -190,6 +227,7 @@ export default {
       if (cachedNearbyPlaces) {
         nearbyPlaces = cachedNearbyPlaces
         this.placeMetadata = cachedPlaceMetadata
+        this.loading = false
 
         // If cached data does not exist, we make our 2 get requests for the data
       } else {
@@ -286,9 +324,16 @@ export default {
                     JSON.stringify(this.placeMetadata)
                   )
                 })
+
+              if (this.loading) {
+                this.loading === false
+              }
             }
           })
           .catch((error) => console.log(`Error: ${error}`))
+          .finally(() => {
+            this.loading = false
+          })
       }
     }
 
