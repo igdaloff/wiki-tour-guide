@@ -7,11 +7,12 @@
   padding: 0.8em 1.5em;
   font-family: var(--sans);
   font-size: 1.1em;  
-  box-shadow: 0 0 0 2px $bg-color, inset 0 0 0 1px $color;
+  box-shadow: 0 0 0 1px $bg-color, inset 0 0 0 2px $color;
   @include hover-transition;
 
   &:hover {
-    background: var(--dark-grey)
+    background: $color;
+    color: $bg-color;
   }
 }
 
