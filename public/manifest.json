@@ -1,7 +1,7 @@
 {
   "name": "Wiki Walking Guide",
   "short_name": "WWG",
-  "start_url": "https://visionary-cocada-116ce3.netlify.app/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#222222",
   "theme_color": "#ffffff",
