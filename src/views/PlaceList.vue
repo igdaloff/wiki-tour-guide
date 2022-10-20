@@ -87,7 +87,7 @@
 }
 
 .distance {
-  color: var(--dark-grey);
+  color: var(--med-grey);
   font-size: 0.9em;
   text-decoration: none;
   display: flex;
