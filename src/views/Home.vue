@@ -1,10 +1,5 @@
 <template>
   <div class="home">
-    <header>
-      <router-link to="/list">
-        <h1 class="header">Wiki Walking Guide</h1>
-      </router-link>
-    </header>
     <div class="grid">
       <!-- <div class="grid-lines"></div> -->
       <div class="grid-lines-z">
@@ -31,6 +26,12 @@
       </div>
       <div class="grid-fade"></div>
     </div>
+    <header>
+      <router-link to="/list">
+        <h1 class="header">Wiki Walking Guide</h1>
+        <h2 class="header begin">Tap to Share Your Location</h2>
+      </router-link>
+    </header>
   </div>
 </template>
 
@@ -49,21 +50,35 @@ $header-height: 110px;
   position: relative;
   margin: 0 auto;
 
-  h1 {
+  h1,
+  h2 {
     position: absolute;
-    top: calc(50% - $header-height / 2);
-    left: 0;
-    right: 0;
-    z-index: 1;
+    padding: 0 0.5em;
     font-family: var(--sans);
     font-weight: 300;
     font-size: 1em;
     text-transform: uppercase;
     color: var(--black);
+    line-height: 1.2;
+  }
+
+  h1 {
+    animation: 7s infinite intro-fade-h1;
+  }
+
+  h2 {
+    opacity: 0;
+    animation: 7s infinite intro-fade-h2;
+  }
+
+  a {
+    text-decoration: none;
+    position: absolute;
+    top: calc(50% - $header-height / 2);
+    left: 0;
+    right: 0;
     background: white;
     margin: 0 auto;
-    padding: 0 1em;
-    line-height: 1.2;
     height: $header-height;
     width: $header-height;
     border-radius: 100%;
@@ -72,10 +87,77 @@ $header-height: 110px;
     flex-direction: column;
     text-align: center;
     box-shadow: 0 0 0 14px var(--black), 0 0 0 15px var(--white);
+
+    &:before {
+      content: '';
+      position: absolute;
+      display: block;
+      width: 1000%;
+      height: 1000%;
+      margin-left: -450%;
+      border-radius: 100%;
+      z-index: -1;
+      border: 1px solid var(--white);
+      animation: pulse-ring 5s ease-in infinite;
+    }
+  }
+}
+
+@keyframes intro-fade-h1 {
+  0% {
+    opacity: 1;
   }
 
-  a {
-    text-decoration: none;
+  25% {
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 0;
+  }
+
+  70% {
+    opacity: 0;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-fade-h2 {
+  0% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.1);
   }
 }
 
