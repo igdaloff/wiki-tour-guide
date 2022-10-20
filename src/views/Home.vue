@@ -39,14 +39,19 @@
 <style lang="scss">
 @import '../assets/mixins.scss';
 
-$grid-height: 100vh;
 $grid-color: #393939;
 $header-height: 110px;
 
 .home {
+  max-width: 800px;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+
   h1 {
     position: absolute;
-    top: calc(30% - $header-height / 2);
+    top: calc(50% - $header-height / 2);
     left: 0;
     right: 0;
     z-index: 1;
@@ -76,9 +81,9 @@ $header-height: 110px;
 
 .grid {
   position: absolute;
-  top: 30%;
+  top: 0;
   width: 100%;
-  height: $grid-height;
+  height: 100vh;
   overflow: hidden;
   perspective: 375px;
 
@@ -87,11 +92,23 @@ $header-height: 110px;
   }
 }
 
-.grid-line-z {
+.grid-lines-z,
+.grid-lines-x {
+  position: absolute;
   height: 100%;
+  width: 100%;
+}
+
+.grid-line-z {
+  height: 200%;
+  top: -50%;
   left: 50%;
-  transform-origin: top;
+  transform-origin: center;
   border-left: 1px solid var(--dark-grey);
+}
+
+.grid-lines-x {
+  top: 50%;
 }
 
 .grid-line-x {
@@ -121,20 +138,10 @@ $x-distance-interval: 20px;
 
   &:nth-child(5) {
     transform: rotate(calc($z-rotate-interval));
-    height: 300px;
-
-    @media screen and (min-width: $medium) {
-      height: 500px;
-    }
   }
 
   &:nth-child(6) {
     transform: rotate(calc($z-rotate-interval * -1));
-    height: 400px;
-
-    @media screen and (min-width: $medium) {
-      height: 600px;
-    }
   }
 
   &:nth-child(7) {
