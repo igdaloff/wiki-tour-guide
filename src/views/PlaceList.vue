@@ -264,10 +264,7 @@ export default {
                 .then((response) => {
                   const placeData = response.data.query.pages[0]
                   const placeName = placeData.title
-                  const placeDescription = placeData.extract.replace(
-                    /(?<!=)=.*=(?!=)/gm, //Section headers in the wikipedia extract are surrounded by two equal signs; this removes the headers entirely as it sounds strange when they're read aloud
-                    ''
-                  )
+                  const placeDescription = placeData.extract
                   const placeWikiUrl = placeData.canonicalurl
                   const placeImgUrl = placeData.thumbnail.source
                   const placeLat = placeData.coordinates[0].lat
@@ -347,7 +344,9 @@ export default {
 
     // Geolocation API the causes location browser prompt. We wait for user to opt in (success) before running success() function above
     // TODO: I HARDCODED THE MAXIMUM AGE (CACHE) SO THAT PAGE RELOAD WOULD HAPPEN QUICKER - HOW CAN WE ALLOW USER TO FORCE GETTING NEW COORDS?
-    navigator.geolocation.getCurrentPosition(success, error, { maximumAge: 360000 })
+    navigator.geolocation.getCurrentPosition(success, error, {
+      maximumAge: 360000,
+    })
   },
   methods: {
     showDescription(e) {
