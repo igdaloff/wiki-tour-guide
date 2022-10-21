@@ -24,6 +24,9 @@ module.exports = defineConfig({
       short_name: 'WWG',
       orientation: 'portrait-primary',
     },
+    workboxOptions: {
+      skipWaiting: true,
+    },
     workboxPluginMode: 'GenerateSW',
   },
 })
