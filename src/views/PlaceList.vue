@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
     <transition-group
       appear
@@ -8,6 +7,7 @@
       tag="ul"
       name="place-list"
     >
+      <Header />
       <li v-for="(place, index) in placeMetadata" :key="index" :data-index="index">
         <div class="place-image-container" @click="showDescription">
           <img

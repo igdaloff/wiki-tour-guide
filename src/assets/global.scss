@@ -1,13 +1,13 @@
-:root{
+:root {
   --base: 1.35; /* Handy multiplier for consistency across elements */
   --black: #222;
   --white: #fff;
   --grey: #d9d9d9;
   --med-grey: #999;
   --dark-grey: #424242;
-  --display: 'EB Garamond', georgia, serif; 
+  --display: 'EB Garamond', georgia, serif;
   --sans: 'Inconsolata', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --serif: Georgia, Times, serif;   
+  --serif: Georgia, Times, serif;
 }
 
 //Screen sizes for media queries
@@ -20,45 +20,54 @@ $medium: 600px;
   margin: 0;
 }
 
-html, body{
+html,
+body {
   height: 100%;
 }
 
-html{ 
+html {
   line-height: calc(1em * var(--base));
-  -webkit-text-size-adjust: 100%;  
+  -webkit-text-size-adjust: 100%;
 }
 
-body{
+body {
   background-color: var(--black);
   color: var(--white);
   margin: 0;
   font-family: var(--sans);
 }
 
-main{
+main {
   display: block;
 }
 
-h1, h2, h3, h4, h5, h6, li, p {
-  overflow-wrap: break-word;  
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+p {
+  overflow-wrap: break-word;
 }
 
-h2{  
+h2 {
   font-size: 1.25em;
   font-weight: 300;
 }
 
-p{
+p {
   font-family: var(--serif);
 }
 
-ol, ul {
+ol,
+ul {
   list-style: none;
   padding: 0;
 }
 
-a{
+a {
   background-color: transparent;
   color: inherit;
 }
@@ -85,8 +94,18 @@ textarea {
 }
 
 button,
-[type="button"],
-[type="reset"],
-[type="submit"] {
+[type='button'],
+[type='reset'],
+[type='submit'] {
   -webkit-appearance: button;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-out;
 }
