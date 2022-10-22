@@ -1,5 +1,6 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
+    <Header />
     <transition-group
       appear
       @before-enter="beforeEnter"
@@ -7,7 +8,6 @@
       tag="ul"
       name="place-list"
     >
-      <Header />
       <li v-for="(place, index) in placeMetadata" :key="index" :data-index="index">
         <div class="place-image-container" @click="showDescription">
           <img
@@ -37,6 +37,7 @@
         </div>
       </li>
     </transition-group>
+    <span class="orb"></span>
   </div>
 </template>
 
@@ -44,16 +45,30 @@
 @import '../assets/mixins.scss';
 
 #loading {
-  opacity: 0;
   overflow: hidden; //To hide scrollbars during loading
+
+  .orb {
+    @include orb;
+  }
+
+  ul,
+  header {
+    opacity: 0;
+  }
 }
 
 #loaded {
-  opacity: 1;
-  transition: 2s;
+  ul,
+  header {
+    opacity: 1;
+    transition: 3s opacity ease-out;
+  }
 }
+
 .place-list {
   @include container;
+  position: relative;
+  height: 100vh;
 }
 
 .place-image-container {

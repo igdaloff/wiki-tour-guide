@@ -1,4 +1,9 @@
-@mixin button($color: var(--white), $bg-color: (var(--black))) {
+@mixin button(
+  $color: var(--white),
+  $bg-color: (
+    var(--black),
+  )
+) {
   display: inline-block;
   background: $bg-color;
   color: $color;
@@ -6,7 +11,7 @@
   text-decoration: none;
   padding: 0.8em 1.5em;
   font-family: var(--sans);
-  font-size: 1.1em;  
+  font-size: 1.1em;
   box-shadow: 0 0 0 1px $bg-color, inset 0 0 0 2px $color;
   @include hover-transition;
 
@@ -34,6 +39,26 @@
   padding: 0 1em;
 }
 
-@mixin hover-transition{
+@mixin hover-transition {
   transition: 0.25s ease;
+}
+
+$orb-height: 110px;
+
+@mixin orb {
+  text-decoration: none;
+  position: absolute;
+  top: calc(50% - $orb-height / 2);
+  left: 0;
+  right: 0;
+  background: white;
+  margin: 0 auto;
+  height: $orb-height;
+  width: $orb-height;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  box-shadow: 0 0 0 14px var(--black), 0 0 0 15px var(--white);
 }

@@ -27,9 +27,9 @@
       <div class="grid-fade"></div>
     </div>
     <header>
-      <router-link to="/list">
+      <router-link to="/list" class="orb">
         <h1 class="header">Wiki Walking Guide</h1>
-        <h2 class="header begin">Tap to Share Your Location</h2>
+        <h2 class="header begin">Tap to Begin</h2>
       </router-link>
     </header>
   </div>
@@ -41,7 +41,6 @@
 @import '../assets/mixins.scss';
 
 $grid-color: #393939;
-$header-height: 110px;
 
 .home {
   max-width: 800px;
@@ -56,7 +55,7 @@ $header-height: 110px;
     padding: 0 0.5em;
     font-family: var(--sans);
     font-weight: 300;
-    font-size: 1em;
+    font-size: 1.1em;
     text-transform: uppercase;
     color: var(--black);
     line-height: 1.2;
@@ -71,22 +70,8 @@ $header-height: 110px;
     animation: 7s infinite intro-fade-h2;
   }
 
-  a {
-    text-decoration: none;
-    position: absolute;
-    top: calc(50% - $header-height / 2);
-    left: 0;
-    right: 0;
-    background: white;
-    margin: 0 auto;
-    height: $header-height;
-    width: $header-height;
-    border-radius: 100%;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    box-shadow: 0 0 0 14px var(--black), 0 0 0 15px var(--white);
+  .orb {
+    @include orb;
 
     &:before {
       content: '';
@@ -99,8 +84,15 @@ $header-height: 110px;
       z-index: -1;
       border: 1px solid var(--white);
       animation: pulse-ring 5s ease-in infinite;
+      transition: border 3s ease-out;
     }
   }
+}
+
+// Fade out the pulse ring when transition begins so that it doesn't abruptly disappear
+.fade-leave-active.home .orb:before {
+  border: 1px solid rgba(#222, 0%);
+  transition: border 3s ease-out;
 }
 
 @keyframes intro-fade-h1 {
@@ -156,6 +148,12 @@ $header-height: 110px;
 }
 
 @keyframes pulse-ring {
+  0% {
+    transform: scale(0.1);
+  }
+}
+
+@keyframes pulse-ring-click {
   0% {
     transform: scale(0.1);
   }
