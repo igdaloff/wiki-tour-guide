@@ -46,7 +46,7 @@
       </li>
     </transition-group>
     <p v-if="noPlaces == true" class="empty-state">
-      No places found within 15,000m. Damb. Try
+      No places found within 10mi. Damb. Try
       <span>expanding your search radius</span>
       <em> (a feature which doesn't exist yet)</em>.
     </p>
@@ -150,7 +150,7 @@
   padding: calc(0.25em * var(--base)) 0 calc(1.5em * var(--base));
 
   h2 {
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
   }
 }
@@ -164,7 +164,7 @@
 
 .distance {
   color: var(--med-grey);
-  font-size: 0.9em;
+  font-size: 1em;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -192,10 +192,12 @@
   cursor: pointer;
   @include hover-transition;
 
-  &:hover {
-    box-shadow: 0 0 0 0px var(--black), 0 0 0 1px var(--white);
-    border-radius: 100%;
-    padding: 0;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: 0 0 0 0px var(--black), 0 0 0 1px var(--white);
+      border-radius: 100%;
+      padding: 0;
+    }
   }
 }
 
@@ -287,7 +289,7 @@ export default {
       const longCache = this.long.toFixed(2);
 
       const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY;
-      const radius = 15000;
+      const radius = 16000;
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       const url =
