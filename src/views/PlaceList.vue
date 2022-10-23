@@ -8,7 +8,11 @@
       tag="ul"
       name="place-list"
     >
-      <li v-for="(place, index) in placeMetadata" :key="index" :data-index="index">
+      <li
+        v-for="(place, index) in placeMetadata"
+        :key="index"
+        :data-index="index"
+      >
         <div class="place-image-container" @click="showDescription">
           <img
             :src="place.imgUrl"
@@ -23,9 +27,13 @@
             >play_circle</span
           >
           <div class="place-header-meta">
-            <h2 @click="showDescription" :data-name="place.name">{{ place.name }}</h2>
+            <h2 @click="showDescription" :data-name="place.name">
+              {{ place.name }}
+            </h2>
             <div class="distance">
-              <a :href="place.mapUrl" target="_blank"> {{ place.distance }} mi away </a>
+              <a :href="place.mapUrl" target="_blank">
+                {{ place.distance }} mi away
+              </a>
               <span class="material-symbols-outlined">directions_walk</span>
             </div>
           </div>
@@ -37,15 +45,20 @@
         </div>
       </li>
     </transition-group>
+    <p v-if="noPlaces == true" class="empty-state">
+      No places found within 15,000m. Damb. Try
+      <span>expanding your search radius</span>
+      <em> (a feature which doesn't exist yet)</em>.
+    </p>
     <span v-if="loading" class="orb">
-      <span class="loading-text">Loading…</span>
+      <span class="loading-text">Searching…</span>
       <span class="pointer"></span>
     </span>
   </div>
 </template>
 
 <style lang="scss">
-@import '../assets/mixins.scss';
+@import "../assets/mixins.scss";
 
 #loading {
   overflow: hidden; //To hide scrollbars during loading
@@ -60,12 +73,20 @@
   }
 }
 
+#loaded {
+  ul,
+  header {
+    opacity: 1;
+    transition: 3s opacity ease-out;
+  }
+}
+
 .pointer {
   height: $orb-height;
   animation: pointer-spin 3s ease-in-out infinite;
 
   &:after {
-    content: '';
+    content: "";
     position: absolute;
     top: -34px;
     left: calc(50% - 10px);
@@ -86,14 +107,6 @@
 
   100% {
     transform: rotate(360deg);
-  }
-}
-
-#loaded {
-  ul,
-  header {
-    opacity: 1;
-    transition: 3s opacity ease-out;
   }
 }
 
@@ -174,7 +187,7 @@
 
 .play,
 .pause {
-  font-variation-settings: 'FILL' 1;
+  font-variation-settings: "FILL" 1;
   font-size: 3em;
   cursor: pointer;
   @include hover-transition;
@@ -208,15 +221,26 @@
     padding-bottom: 1em;
   }
 }
+
+.empty-state {
+  font-size: 1.3em;
+  line-height: 1.4;
+  text-align: center;
+  padding: 2em 1em;
+
+  span {
+    text-decoration: underline;
+  }
+}
 </style>
 
 <script>
-import axios from 'axios'
-import gsap from 'gsap'
-import Header from '../components/Header'
+import axios from "axios";
+import gsap from "gsap";
+import Header from "../components/Header";
 
 export default {
-  name: 'PlaceList',
+  name: "PlaceList",
 
   components: {
     Header,
@@ -226,9 +250,9 @@ export default {
   //HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
   setup() {
     const beforeEnter = (el) => {
-      el.style.transform = 'translateY(20px)'
-      el.style.opacity = 0
-    }
+      el.style.transform = "translateY(20px)";
+      el.style.opacity = 0;
+    };
     const enter = (el, done) => {
       // First argument, el, is element we're animating; second element contains our animation properties
       gsap.to(el, {
@@ -237,67 +261,67 @@ export default {
         opacity: 1,
         onComplete: done,
         delay: el.dataset.index * 0.2,
-      })
-    }
+      });
+    };
 
-    return { beforeEnter, enter }
+    return { beforeEnter, enter };
   },
 
   data() {
     return {
       placeMetadata: [],
-      lat: '',
-      long: '',
+      lat: "",
+      long: "",
       loading: true,
-    }
+      noPlaces: false,
+    };
   },
 
   async created() {
     // If geolocation request is successful (if user opts into browser prompt), run the following code. Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
     const success = (position) => {
-      this.lat = position.coords.latitude
-      this.long = position.coords.longitude
-      const latCache = this.lat.toFixed(2)
-      const longCache = this.long.toFixed(2)
+      this.lat = position.coords.latitude;
+      this.long = position.coords.longitude;
+      const latCache = this.lat.toFixed(2);
+      const longCache = this.long.toFixed(2);
 
-      const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY
-      const radius = 5000
+      const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY;
+      const radius = 15000;
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       const url =
-        'https://api.opentripmap.com/0.1/en/places/radius?radius=' +
+        "https://api.opentripmap.com/0.1/en/places/radius?radius=" +
         radius +
-        '&lon=' +
+        "&lon=" +
         this.long +
-        '&lat=' +
+        "&lat=" +
         this.lat +
-        '&src_geom=wikidata&src_attr=wikidata&limit=20&apikey=' +
-        API_KEY
+        "&limit=50&src_geom=wikidata&src_attr=wikidata&apikey=" +
+        API_KEY;
 
-      let nearbyPlaces = []
+      let nearbyPlaces = [];
 
-      // NOTE TO FIX THIS: JSON.PARSE CONVERTS STRING TO OBJECT BUT WE NEED IT AS AN ARRAY
       const cachedNearbyPlaces = JSON.parse(
         localStorage.getItem(`place-list-cache-${latCache}.${longCache}`)
-      )
+      );
 
       const cachedPlaceMetadata = JSON.parse(
         localStorage.getItem(`place-data-cache-${latCache}.${longCache}`)
-      )
+      );
 
       // Use URL generated above in axios call, return list of places in an array; we'll loop through these below
 
       // If cached place list exists, we assume cached place data exists as well, so we use data from each cache to set corresponding data sets
       if (cachedNearbyPlaces) {
-        nearbyPlaces = cachedNearbyPlaces
-        this.placeMetadata = cachedPlaceMetadata
+        nearbyPlaces = cachedNearbyPlaces;
+        this.placeMetadata = cachedPlaceMetadata;
 
         //If in development env, set loading flag immediately for quicker refresh during dev
-        if (process.env.NODE_ENV == 'development') {
-          this.loading = false
+        if (process.env.NODE_ENV == "development") {
+          this.loading = false;
         } else {
-          setTimeout(() => (this.loading = false), 3000)
+          setTimeout(() => (this.loading = false), 3000);
         }
 
         // If cached data does not exist, we make our 2 get requests for the data
@@ -305,20 +329,27 @@ export default {
         axios
           .get(url)
           .then((response) => {
-            const allPlaces = response.data.features
+            const allPlaces = response.data.features;
 
             // Turn returned object into an array
             for (const place in allPlaces) {
-              nearbyPlaces.push(allPlaces[place].properties.name.replace(/ /g, '_'))
+              nearbyPlaces.push(
+                allPlaces[place].properties.name.replace(/ /g, "_")
+              );
             }
 
-            // Cache this array using lat/long as key
-            localStorage.setItem(
-              `place-list-cache-${latCache}.${longCache}`,
-              JSON.stringify(nearbyPlaces)
-            )
+            // Cache this array using lat/long as key, only if there are nearbyplaces
+            if (allPlaces.length > 0) {
+              localStorage.setItem(
+                `place-list-cache-${latCache}.${longCache}`,
+                JSON.stringify(nearbyPlaces)
+              );
+            } else {
+              this.noPlaces = true;
+              throw new Error("No places nearby found");
+            }
 
-            return nearbyPlaces
+            return nearbyPlaces;
           })
 
           // When above API call completes, loop through our array of place names (created above) and query Wikipedia API for each.
@@ -333,39 +364,39 @@ export default {
                   `https://en.wikipedia.org/w/api.php?action=query&prop=info|extracts|pageimages|coordinates&inprop=url&exsentences=10&exlimit=1&titles=${nearbyPlaces[i]}&explaintext=1&formatversion=2&format=json&origin=*&pithumbsize=500`
                 )
                 .then((response) => {
-                  const placeData = response.data.query.pages[0]
-                  const placeName = placeData.title
-                  const placeDescription = placeData.extract
-                  const placeWikiUrl = placeData.canonicalurl
-                  const placeImgUrl = placeData.thumbnail.source
-                  const placeLat = placeData.coordinates[0].lat
-                  const placeLong = placeData.coordinates[0].lon
-                  const placeMapUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
+                  const placeData = response.data.query.pages[0];
+                  const placeName = placeData.title;
+                  const placeDescription = placeData.extract;
+                  const placeWikiUrl = placeData.canonicalurl;
+                  const placeImgUrl = placeData.thumbnail.source;
+                  const placeLat = placeData.coordinates[0].lat;
+                  const placeLong = placeData.coordinates[0].lon;
+                  const placeMapUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`;
                   const distanceFromUser = getDistanceFromLatLong(
                     this.lat,
                     this.long,
                     placeLat,
                     placeLong
-                  )
+                  );
 
                   // Get distance between user and place
                   function getDistanceFromLatLong(lat1, long1, lat2, long2) {
-                    const R = 6371 // Radius of the earth in km!
-                    const dLat = deg2rad(lat2 - lat1) // deg2rad below
-                    const dLong = deg2rad(long2 - long1)
+                    const R = 6371; // Radius of the earth in km!
+                    const dLat = deg2rad(lat2 - lat1); // deg2rad below
+                    const dLong = deg2rad(long2 - long1);
                     const a =
                       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                       Math.cos(deg2rad(lat1)) *
                         Math.cos(deg2rad(lat2)) *
                         Math.sin(dLong / 2) *
-                        Math.sin(dLong / 2)
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                    const d = (R * c * 0.621371).toFixed(2) // Distance in mi
-                    return d
+                        Math.sin(dLong / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    const d = (R * c * 0.621371).toFixed(2); // Distance in mi
+                    return d;
                   }
 
                   function deg2rad(deg) {
-                    return deg * (Math.PI / 180)
+                    return deg * (Math.PI / 180);
                   }
 
                   // Store result in an object to be appended to array below
@@ -376,73 +407,73 @@ export default {
                     imgUrl: placeImgUrl,
                     mapUrl: placeMapUrl,
                     distance: distanceFromUser,
-                  }
+                  };
 
                   // Add name and description object to array, only if description exists and is substantial (sometimes Wikipedia returns
                   // a description like "Gateway Theater may refer to" when it's unsure of the query you're looking for. We don't want to show those.)
                   if (placeDescription && placeDescription.length > 40) {
-                    this.placeMetadata.push(placeDataObj)
+                    this.placeMetadata.push(placeDataObj);
 
                     // Sort by distance
                     this.placeMetadata.sort(
                       (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
-                    )
+                    );
                   }
 
                   // Cache place data in localstorage
                   localStorage.setItem(
                     `place-data-cache-${latCache}.${longCache}`,
                     JSON.stringify(this.placeMetadata)
-                  )
-                })
+                  );
+                });
 
               if (this.loading) {
-                this.loading === false
+                this.loading === false;
               }
             }
           })
-          .then(() => new Promise((resolve) => setTimeout(resolve, 3000))) //Fictional delay to show loader animation and let place cards get in place
-          .catch((error) => console.log(`Error: ${error}`))
+          .then(() => new Promise((resolve) => setTimeout(resolve, 1000))) //Fictional delay to show loader animation and let place cards get in place
+          .catch((error) => console.log(`${error}`))
           .finally(() => {
-            this.loading = false
-          })
+            this.loading = false;
+          });
       }
-    }
+    };
 
     // Log any errors from Geolocation API request
     const error = (err) => {
-      console.log(err)
-    }
+      console.log(err);
+    };
 
     // Geolocation API the causes location browser prompt. We wait for user to opt in (success) before running success() function above
     // TODO: I HARDCODED THE MAXIMUM AGE (CACHE) SO THAT PAGE RELOAD WOULD HAPPEN QUICKER - HOW CAN WE ALLOW USER TO FORCE GETTING NEW COORDS?
     navigator.geolocation.getCurrentPosition(success, error, {
       maximumAge: 360000,
-    })
+    });
   },
   methods: {
     showDescription(e) {
-      const placeName = e.target.getAttribute('data-name')
+      const placeName = e.target.getAttribute("data-name");
       const descriptionElement = document.querySelector(
         `.place-description[data-name='${placeName}']`
-      )
-      descriptionElement.classList.add('show')
+      );
+      descriptionElement.classList.add("show");
     },
     speakDescription(textToSay, event) {
-      let utterance = new SpeechSynthesisUtterance(textToSay)
+      let utterance = new SpeechSynthesisUtterance(textToSay);
 
-      if (event.target.classList.contains('play')) {
-        window.speechSynthesis.cancel()
-        window.speechSynthesis.speak(utterance)
-        event.target.textContent = 'pause_circle'
-        event.target.classList.add('pause')
-        event.target.classList.remove('play')
+      if (event.target.classList.contains("play")) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+        event.target.textContent = "pause_circle";
+        event.target.classList.add("pause");
+        event.target.classList.remove("play");
       } else {
-        window.speechSynthesis.pause()
-        event.target.textContent = 'play_circle'
-        event.target.classList.add('play')
+        window.speechSynthesis.pause();
+        event.target.textContent = "play_circle";
+        event.target.classList.add("play");
       }
     },
   },
-}
+};
 </script>

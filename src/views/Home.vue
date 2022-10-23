@@ -38,7 +38,7 @@
 <script></script>
 
 <style lang="scss">
-@import '../assets/mixins.scss';
+@import "../assets/mixins.scss";
 
 $grid-color: #393939;
 
@@ -66,7 +66,7 @@ $grid-color: #393939;
     @include orb;
 
     &:before {
-      content: '';
+      content: "";
       position: absolute;
       display: block;
       width: 1000%;
@@ -260,6 +260,10 @@ $x-distance-interval: 20px;
   height: 100%;
   position: absolute;
   z-index: 1;
-  background: radial-gradient(ellipse at 50% 0%, rgba(#222, 0%) 0%, rgba(#222, 100%) 90%);
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(#222, 0%) 0%,
+    rgba(#222, 100%) 90%
+  );
 }
 </style>
