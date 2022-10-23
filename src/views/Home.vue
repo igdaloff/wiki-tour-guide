@@ -49,25 +49,17 @@ $grid-color: #393939;
   position: relative;
   margin: 0 auto;
 
-  h1,
-  h2 {
-    position: absolute;
-    padding: 0 0.5em;
-    font-family: var(--sans);
-    font-weight: 300;
-    font-size: 1.1em;
-    text-transform: uppercase;
-    color: var(--black);
-    line-height: 1.2;
+  .grid {
+    opacity: 1;
   }
 
   h1 {
-    animation: 7s infinite intro-fade-h1;
+    animation: 7s infinite orb-text-fade;
   }
 
   h2 {
     opacity: 0;
-    animation: 7s infinite intro-fade-h2;
+    animation: 7s infinite orb-text-fade-alt;
   }
 
   .orb {
@@ -85,17 +77,12 @@ $grid-color: #393939;
       border: 1px solid var(--white);
       animation: pulse-ring 5s ease-in infinite;
       transition: border 3s ease-out;
+      opacity: 1;
     }
   }
 }
 
-// Fade out the pulse ring when transition begins so that it doesn't abruptly disappear
-.fade-leave-active.home .orb:before {
-  border: 1px solid rgba(#222, 0%);
-  transition: border 3s ease-out;
-}
-
-@keyframes intro-fade-h1 {
+@keyframes orb-text-fade {
   0% {
     opacity: 1;
   }
@@ -121,7 +108,7 @@ $grid-color: #393939;
   }
 }
 
-@keyframes intro-fade-h2 {
+@keyframes orb-text-fade-alt {
   0% {
     opacity: 0;
   }

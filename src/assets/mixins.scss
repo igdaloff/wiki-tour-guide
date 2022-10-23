@@ -61,4 +61,19 @@ $orb-height: 110px;
   flex-direction: column;
   text-align: center;
   box-shadow: 0 0 0 14px var(--black), 0 0 0 15px var(--white);
+
+  h1,
+  h2,
+  .loading-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 0 0.5em;
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    line-height: 1.2;
+  }
 }

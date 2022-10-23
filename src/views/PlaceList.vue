@@ -37,7 +37,10 @@
         </div>
       </li>
     </transition-group>
-    <span class="orb"></span>
+    <span class="orb">
+      <span class="loading-text">Loading…</span>
+      <span class="pointer"></span>
+    </span>
   </div>
 </template>
 
@@ -57,11 +60,55 @@
   }
 }
 
+.pointer {
+  height: $orb-height;
+  animation: pointer-spin 3s ease-in-out infinite;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: -34px;
+    left: calc(50% - 10px);
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid white;
+    transition: top 3.5s ease-in;
+  }
+}
+
+@keyframes pointer-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 #loaded {
   ul,
   header {
     opacity: 1;
     transition: 3s opacity ease-out;
+  }
+}
+
+.loading-text {
+  animation: 1.5s infinite loading-text-fade ease-in;
+}
+
+@keyframes loading-text-fade {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0;
   }
 }
 
@@ -242,7 +289,7 @@ export default {
       if (cachedNearbyPlaces) {
         nearbyPlaces = cachedNearbyPlaces
         this.placeMetadata = cachedPlaceMetadata
-        this.loading = false
+        setTimeout(() => (this.loading = false), 3000)
 
         // If cached data does not exist, we make our 2 get requests for the data
       } else {
@@ -345,6 +392,7 @@ export default {
               }
             }
           })
+          .then(() => new Promise((resolve) => setTimeout(resolve, 3000))) //Fictional delay to show loader animation and let place cards get in place
           .catch((error) => console.log(`Error: ${error}`))
           .finally(() => {
             this.loading = false

@@ -115,13 +115,15 @@ button,
 // Transition from home to place list
 .fade-leave-active.home,
 .fade-enter-active.place-list {
-  transition: opacity 5s ease-out;
+  transition: opacity 0.5s ease-out;
 }
 
 .fade-leave-to.home {
-  //Only the grid and text fades, not the orb, which we want to remain to serve as a sort of loader as the list loads
-  .grid {
+  //Only the grid, text, pulse ring fades, not the orb, which we want to remain for continuity until the loader shows up
+  .grid,
+  .orb:before {
     opacity: 0;
+    transition: opacity 0.4s ease-out;
   }
 
   h1,
