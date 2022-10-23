@@ -25,14 +25,14 @@
           <div class="place-header-meta">
             <h2 @click="showDescription" :data-name="place.name">{{ place.name }}</h2>
             <div class="distance">
-              <a :href="place.mapUrl"> {{ place.distance }} mi away </a>
+              <a :href="place.mapUrl" target="_blank"> {{ place.distance }} mi away </a>
               <span class="material-symbols-outlined">directions_walk</span>
             </div>
           </div>
         </div>
 
         <div class="place-description" :data-name="place.name">
-          <a :href="place.wikiUrl">Read on Wikipedia</a>
+          <a :href="place.wikiUrl" target="_blank">Read on Wikipedia</a>
           <p>{{ place.description }}</p>
         </div>
       </li>
@@ -146,6 +146,7 @@
   justify-content: center;
   flex-direction: column;
   display: flex;
+  padding-left: 0.5em;
 }
 
 .distance {
@@ -175,12 +176,13 @@
 .pause {
   font-variation-settings: 'FILL' 1;
   font-size: 3em;
-  padding-right: 0.15em;
   cursor: pointer;
   @include hover-transition;
 
   &:hover {
-    color: var(--dark-grey);
+    box-shadow: 0 0 0 0px var(--black), 0 0 0 1px var(--white);
+    border-radius: 100%;
+    padding: 0;
   }
 }
 
@@ -221,6 +223,7 @@ export default {
   },
 
   //Loading transitions for place list items
+  //HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
   setup() {
     const beforeEnter = (el) => {
       el.style.transform = 'translateY(20px)'
@@ -289,7 +292,13 @@ export default {
       if (cachedNearbyPlaces) {
         nearbyPlaces = cachedNearbyPlaces
         this.placeMetadata = cachedPlaceMetadata
-        setTimeout(() => (this.loading = false), 3000)
+
+        //If in development env, set loading flag immediately for quicker refresh during dev
+        if (process.env.NODE_ENV == 'development') {
+          this.loading = false
+        } else {
+          setTimeout(() => (this.loading = false), 3000)
+        }
 
         // If cached data does not exist, we make our 2 get requests for the data
       } else {

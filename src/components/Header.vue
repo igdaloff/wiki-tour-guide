@@ -28,6 +28,7 @@ nav {
 .settings-link {
   position: relative;
   color: var(--white);
+  pointer-events: none;
 
   span {
     font-variation-settings: 'wght' 200;
