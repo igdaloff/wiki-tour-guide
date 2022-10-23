@@ -10,10 +10,11 @@
 </template>
 
 <style lang="scss">
-@import "../assets/mixins.scss";
+@import '../assets/mixins.scss';
 
 .main-header {
   @include container;
+  padding: 0;
 }
 
 nav {
@@ -29,13 +30,13 @@ nav {
   color: var(--white);
 
   span {
-    font-variation-settings: "wght" 200;
+    font-variation-settings: 'wght' 200;
   }
 }
 </style>
 
 <script>
 export default {
-  name: "Header",
+  name: 'Header',
 }
 </script>

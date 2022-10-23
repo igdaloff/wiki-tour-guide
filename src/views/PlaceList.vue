@@ -37,7 +37,7 @@
         </div>
       </li>
     </transition-group>
-    <span class="orb">
+    <span v-if="loading" class="orb">
       <span class="loading-text">Loading…</span>
       <span class="pointer"></span>
     </span>
