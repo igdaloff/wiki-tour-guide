@@ -28,9 +28,12 @@
             </h2>
             <div class="distance">
               <a :href="place.mapUrl" target="_blank">
-                {{ place.distance }} mi away
+                <template v-if="place.mapUrl && place.distance">
+                  {{ place.distance }} mi away
+                  <span class="material-symbols-outlined">directions_walk</span>
+                </template>
+                <template v-else> Open in Map </template>
               </a>
-              <span class="material-symbols-outlined">directions_walk</span>
             </div>
           </div>
         </div>
@@ -128,16 +131,23 @@
 }
 
 .place-image-container {
+  position: relative;
   text-align: center;
   background: var(--grey);
   border-radius: 10px;
   overflow: hidden;
-  max-height: 250px;
+  height: 250px;
 
   img {
-    display: block;
-    margin: 0 auto;
+    position: absolute;
+    margin: auto;
     cursor: pointer;
+    min-width: 100%;
+    min-height: 100%;
+    top: -100%;
+    left: 0;
+    right: 0;
+    bottom: -100%;
   }
 }
 
@@ -168,8 +178,9 @@
 
   span {
     font-size: 1.2em;
-    padding-left: 1px;
-    padding-top: 2px;
+    padding-left: 2px;
+    padding-top: 1px;
+    position: absolute;
   }
 
   a {
@@ -295,7 +306,7 @@ export default {
         ggslimit: "20",
         format: "json",
         exintro: "true",
-        prop: "info|extracts|pageimages|coordinates",
+        prop: "coordinates|info|extracts|pageimages",
         explaintext: "1",
         exlimit: "max",
         inprop: "url",
@@ -344,7 +355,7 @@ export default {
               const placeWikiUrl = allPlaceData[property].canonicalurl;
               const placeImgUrl =
                 allPlaceData[property].thumbnail === undefined
-                  ? "http://placekitten.com/200/300"
+                  ? null
                   : allPlaceData[property].thumbnail.source;
 
               const placeLat =
@@ -358,13 +369,18 @@ export default {
               const placeMapUrl =
                 placeLat != ""
                   ? `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
-                  : "";
-              const distanceFromUser = getDistanceFromLatLong(
-                this.lat,
-                this.long,
-                placeLat,
-                placeLong
-              );
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      placeName
+                    )}`;
+              const distanceFromUser =
+                placeLat != ""
+                  ? getDistanceFromLatLong(
+                      this.lat,
+                      this.long,
+                      placeLat,
+                      placeLong
+                    )
+                  : null;
 
               // Get distance between user and place
               function getDistanceFromLatLong(lat1, long1, lat2, long2) {
@@ -396,7 +412,9 @@ export default {
                 distance: distanceFromUser,
               };
 
-              this.placeData.push(placeDataObj);
+              if (placeImgUrl) {
+                this.placeData.push(placeDataObj);
+              }
 
               // Sort by distance
               this.placeData.sort(
