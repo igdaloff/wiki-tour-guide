@@ -8,11 +8,7 @@
       tag="ul"
       name="place-list"
     >
-      <li
-        v-for="(place, index) in placeMetadata"
-        :key="index"
-        :data-index="index"
-      >
+      <li v-for="(place, index) in placeData" :key="index" :data-index="index">
         <div class="place-image-container" @click="showDescription">
           <img
             :src="place.imgUrl"
@@ -271,7 +267,7 @@ export default {
 
   data() {
     return {
-      placeMetadata: [],
+      placeData: [],
       lat: "",
       long: "",
       loading: true,
@@ -288,36 +284,37 @@ export default {
       const latCache = this.lat.toFixed(2);
       const longCache = this.long.toFixed(2);
 
-      const API_KEY = process.env.VUE_APP_OPENTRIPMAP_API_KEY;
-      const radius = 16000;
-
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
-      const url =
-        "https://api.opentripmap.com/0.1/en/places/radius?radius=" +
-        radius +
-        "&lon=" +
-        this.long +
-        "&lat=" +
-        this.lat +
-        "&limit=50&src_geom=wikidata&src_attr=wikidata&apikey=" +
-        API_KEY;
+      // Documentation: https://www.mediawiki.org/wiki/API:Query
+      let url = "https://en.wikipedia.org/w/api.php?origin=*";
+      const params = {
+        action: "query",
+        generator: "geosearch",
+        ggscoord: this.lat + "|" + this.long,
+        ggsradius: "10000",
+        ggslimit: "20",
+        format: "json",
+        exintro: "true",
+        prop: "info|extracts|pageimages|coordinates",
+        explaintext: "1",
+        exlimit: "max",
+        inprop: "url",
+        pithumbsize: "500",
+      };
 
-      let nearbyPlaces = [];
+      Object.keys(params).forEach(function (key) {
+        url += "&" + key + "=" + params[key];
+      });
 
-      const cachedNearbyPlaces = JSON.parse(
-        localStorage.getItem(`place-list-cache-${latCache}.${longCache}`)
-      );
-
-      const cachedPlaceMetadata = JSON.parse(
+      const cachedPlaceData = JSON.parse(
         localStorage.getItem(`place-data-cache-${latCache}.${longCache}`)
       );
 
       // Use URL generated above in axios call, return list of places in an array; we'll loop through these below
 
       // If cached place list exists, we assume cached place data exists as well, so we use data from each cache to set corresponding data sets
-      if (cachedNearbyPlaces) {
-        nearbyPlaces = cachedNearbyPlaces;
-        this.placeMetadata = cachedPlaceMetadata;
+      if (cachedPlaceData) {
+        this.placeData = cachedPlaceData;
 
         //If in development env, set loading flag immediately for quicker refresh during dev
         if (process.env.NODE_ENV == "development") {
@@ -331,27 +328,8 @@ export default {
         axios
           .get(url)
           .then((response) => {
-            const allPlaces = response.data.features;
-
-            // Turn returned object into an array
-            for (const place in allPlaces) {
-              nearbyPlaces.push(
-                allPlaces[place].properties.name.replace(/ /g, "_")
-              );
-            }
-
-            // Cache this array using lat/long as key, only if there are nearbyplaces
-            if (allPlaces.length > 0) {
-              localStorage.setItem(
-                `place-list-cache-${latCache}.${longCache}`,
-                JSON.stringify(nearbyPlaces)
-              );
-            } else {
-              this.noPlaces = true;
-              throw new Error("No places nearby found");
-            }
-
-            return nearbyPlaces;
+            const allPlaceData = response.data.query.pages;
+            return allPlaceData;
           })
 
           // When above API call completes, loop through our array of place names (created above) and query Wikipedia API for each.
@@ -359,75 +337,77 @@ export default {
           // - Thumbnail: https://www.mediawiki.org/wiki/Extension:PageImages
           // - First paragraph: https://www.mediawiki.org/wiki/API:Get_the_contents_of_a_page#Method_3:_Use_the_TextExtracts_API
           // - Url: https://www.mediawiki.org/w/api.php?action=help&modules=query%2Binfo
-          .then((nearbyPlaces) => {
-            for (let i = 0; i < nearbyPlaces.length; i++) {
-              axios
-                .get(
-                  `https://en.wikipedia.org/w/api.php?action=query&prop=info|extracts|pageimages|coordinates&inprop=url&exsentences=10&exlimit=1&titles=${nearbyPlaces[i]}&explaintext=1&formatversion=2&format=json&origin=*&pithumbsize=500`
-                )
-                .then((response) => {
-                  const placeData = response.data.query.pages[0];
-                  const placeName = placeData.title;
-                  const placeDescription = placeData.extract;
-                  const placeWikiUrl = placeData.canonicalurl;
-                  const placeImgUrl = placeData.thumbnail.source;
-                  const placeLat = placeData.coordinates[0].lat;
-                  const placeLong = placeData.coordinates[0].lon;
-                  const placeMapUrl = `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`;
-                  const distanceFromUser = getDistanceFromLatLong(
-                    this.lat,
-                    this.long,
-                    placeLat,
-                    placeLong
-                  );
+          .then((allPlaceData) => {
+            for (const property in allPlaceData) {
+              const placeName = allPlaceData[property].title;
+              const placeDescription = allPlaceData[property].extract;
+              const placeWikiUrl = allPlaceData[property].canonicalurl;
+              const placeImgUrl =
+                allPlaceData[property].thumbnail === undefined
+                  ? "http://placekitten.com/200/300"
+                  : allPlaceData[property].thumbnail.source;
 
-                  // Get distance between user and place
-                  function getDistanceFromLatLong(lat1, long1, lat2, long2) {
-                    const R = 6371; // Radius of the earth in km!
-                    const dLat = deg2rad(lat2 - lat1); // deg2rad below
-                    const dLong = deg2rad(long2 - long1);
-                    const a =
-                      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(deg2rad(lat1)) *
-                        Math.cos(deg2rad(lat2)) *
-                        Math.sin(dLong / 2) *
-                        Math.sin(dLong / 2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                    const d = (R * c * 0.621371).toFixed(2); // Distance in mi
-                    return d;
-                  }
+              const placeLat =
+                allPlaceData[property].coordinates === undefined
+                  ? ""
+                  : allPlaceData[property].coordinates[0].lat;
+              const placeLong =
+                allPlaceData[property].coordinates === undefined
+                  ? ""
+                  : allPlaceData[property].coordinates[0].lon;
+              const placeMapUrl =
+                placeLat != ""
+                  ? `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
+                  : "";
+              const distanceFromUser = getDistanceFromLatLong(
+                this.lat,
+                this.long,
+                placeLat,
+                placeLong
+              );
 
-                  function deg2rad(deg) {
-                    return deg * (Math.PI / 180);
-                  }
+              // Get distance between user and place
+              function getDistanceFromLatLong(lat1, long1, lat2, long2) {
+                const R = 6371; // Radius of the earth in km!
+                const dLat = deg2rad(lat2 - lat1); // deg2rad below
+                const dLong = deg2rad(long2 - long1);
+                const a =
+                  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(deg2rad(lat1)) *
+                    Math.cos(deg2rad(lat2)) *
+                    Math.sin(dLong / 2) *
+                    Math.sin(dLong / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const d = (R * c * 0.621371).toFixed(2); // Distance in mi
+                return d;
+              }
 
-                  // Store result in an object to be appended to array below
-                  const placeDataObj = {
-                    name: placeName,
-                    description: placeDescription,
-                    wikiUrl: placeWikiUrl,
-                    imgUrl: placeImgUrl,
-                    mapUrl: placeMapUrl,
-                    distance: distanceFromUser,
-                  };
+              function deg2rad(deg) {
+                return deg * (Math.PI / 180);
+              }
 
-                  // Add name and description object to array, only if description exists and is substantial (sometimes Wikipedia returns
-                  // a description like "Gateway Theater may refer to" when it's unsure of the query you're looking for. We don't want to show those.)
-                  if (placeDescription && placeDescription.length > 40) {
-                    this.placeMetadata.push(placeDataObj);
+              // Store result in an object to be appended to array below
+              const placeDataObj = {
+                name: placeName,
+                description: placeDescription,
+                wikiUrl: placeWikiUrl,
+                imgUrl: placeImgUrl,
+                mapUrl: placeMapUrl,
+                distance: distanceFromUser,
+              };
 
-                    // Sort by distance
-                    this.placeMetadata.sort(
-                      (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
-                    );
-                  }
+              this.placeData.push(placeDataObj);
 
-                  // Cache place data in localstorage
-                  localStorage.setItem(
-                    `place-data-cache-${latCache}.${longCache}`,
-                    JSON.stringify(this.placeMetadata)
-                  );
-                });
+              // Sort by distance
+              this.placeData.sort(
+                (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+              );
+
+              // Cache place data in localstorage
+              localStorage.setItem(
+                `place-data-cache-${latCache}.${longCache}`,
+                JSON.stringify(this.placeData)
+              );
 
               if (this.loading) {
                 this.loading === false;
