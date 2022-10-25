@@ -7,12 +7,11 @@
   display: inline-block;
   background: $bg-color;
   color: $color;
-  border-radius: 8px;
+  border-radius: 5px;
   text-decoration: none;
   padding: 0.8em 1.5em;
   font-family: var(--sans);
   font-size: 1.1em;
-  box-shadow: 0 0 0 1px $bg-color, inset 0 0 0 2px $color;
   @include hover-transition;
 
   &:hover {
@@ -27,8 +26,8 @@
   align-items: center;
 
   span,
-  img {
-    margin-inline-end: 0.5em;
+  img,
+  i {
     font-size: 1.1em;
   }
 }

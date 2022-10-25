@@ -1,5 +1,14 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
+    <div :style="{ display: installBtn }" class="install-banner">
+      <h3>Install this app</h3>
+      <span class="">to easily access it from your home screen.</span>
+      <a @click="installer()" href="" class="install-link"
+        >Install
+        <i class="material-symbols-outlined download-icon"> download </i></a
+      >
+      <a href="" class="no-thanks">No thanks</a>
+    </div>
     <Header />
     <transition-group
       appear
@@ -51,7 +60,7 @@
     </p>
     <span v-if="loading" class="orb">
       <span class="loading-text">Searching…</span>
-      <span class="pointer"></span>
+      <span class="orb-pointer"></span>
     </span>
   </div>
 </template>
@@ -59,6 +68,7 @@
 <style lang="scss">
 @import "../assets/mixins.scss";
 
+// Loading stuff
 #loading {
   overflow: hidden; //To hide scrollbars during loading
 
@@ -80,7 +90,7 @@
   }
 }
 
-.pointer {
+.orb-pointer {
   height: $orb-height;
   animation: pointer-spin 3s ease-in-out infinite;
 
@@ -123,6 +133,49 @@
     opacity: 0;
   }
 }
+
+// PWA install banner
+.install-banner {
+  position: relative;
+  display: block;
+  background: var(--dark-grey);
+  color: var(--grey);
+  width: 100%;
+  padding: 1em 1em 1.25em;
+  margin-top: 1.25em;
+  border-radius: 10px;
+
+  h3 {
+    font-size: 1.25em;
+  }
+
+  span {
+    display: inline-block;
+    margin-top: 0.25em;
+    margin-bottom: 1em;
+    font-size: 1em;
+    line-height: 1.1;
+  }
+
+  .install-link {
+    @include icon-button;
+    background: var(--white);
+    padding: 0.5em 0.75em;
+    font-size: 1em;
+    color: var(--black);
+    margin-right: 1em;
+
+    i {
+      margin-inline-start: 0.5em;
+    }
+  }
+
+  .no-thanks {
+    text-decoration: underline;
+  }
+}
+
+// Place card list
 
 .place-list {
   @include container;
@@ -231,6 +284,7 @@
   }
 }
 
+//Empty state
 .empty-state {
   font-size: 1.3em;
   line-height: 1.4;
@@ -255,8 +309,20 @@ export default {
     Header,
   },
 
+  data() {
+    return {
+      installBtn: "none",
+      installer: undefined,
+      placeData: [],
+      lat: "",
+      long: "",
+      loading: true,
+      noPlaces: false,
+    };
+  },
+
   //Loading transitions for place list items
-  //HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
+  //TODO: HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
   setup() {
     const beforeEnter = (el) => {
       el.style.transform = "translateY(20px)";
@@ -276,17 +342,32 @@ export default {
     return { beforeEnter, enter };
   },
 
-  data() {
-    return {
-      placeData: [],
-      lat: "",
-      long: "",
-      loading: true,
-      noPlaces: false,
-    };
-  },
+  created() {
+    //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
+    let installPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      // Prevent the mini-infobar from appearing on mobile.
+      e.preventDefault();
+      installPrompt = e;
+      this.installBtn = "block";
+    });
 
-  async created() {
+    this.installer = () => {
+      this.installBtn = "none";
+      installPrompt.prompt();
+    };
+
+    window.addEventListener("appinstalled", () => {
+      // Hide the app-provided install promotion
+      hideInstallPromotion();
+
+      // Clear the deferredPrompt so it can be garbage collected
+      deferredPrompt = null;
+
+      // Eventually, let's send an analytics event here to indicate successful install
+      console.log("PWA was installed");
+    });
+
     // If geolocation request is successful (if user opts into browser prompt), run the following code. Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
     const success = (position) => {

@@ -7,14 +7,14 @@
 </template>
 
 <script>
-import PlaceList from './views/PlaceList.vue'
+import PlaceList from "./views/PlaceList.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     PlaceList,
   },
-}
+};
 </script>
 
 <style lang="scss"></style>
