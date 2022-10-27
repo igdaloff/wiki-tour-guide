@@ -1,12 +1,13 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
     <div :style="{ display: installBtn }" class="install-banner">
-      <h3>Install this app</h3>
+      <h3>
+        Install this App<i class="material-symbols-outlined download-icon"
+          >download</i
+        >
+      </h3>
       <span class="">to easily access it from your home screen.</span>
-      <a @click="installer()" href="" class="install-link"
-        >Install
-        <i class="material-symbols-outlined download-icon"> download </i></a
-      >
+      <a @click="installer()" href="" class="install-link">Install </a>
       <a href="" class="no-thanks">No thanks</a>
     </div>
     <Header />
@@ -157,8 +158,14 @@
     line-height: 1.1;
   }
 
+  .download-icon {
+    position: relative;
+    top: 5px;
+    margin-left: 8px;
+  }
+
   .install-link {
-    @include icon-button;
+    @include button;
     background: var(--white);
     padding: 0.5em 0.75em;
     font-size: 1em;
@@ -176,7 +183,6 @@
 }
 
 // Place card list
-
 .place-list {
   @include container;
   position: relative;
@@ -346,9 +352,13 @@ export default {
     //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
     let installPrompt;
     window.addEventListener("beforeinstallprompt", (e) => {
-      // Prevent the mini-infobar from appearing on mobile.
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
+
+      // Stash the event so it can be triggered later
       installPrompt = e;
+
+      // Show previously hidden banner
       this.installBtn = "block";
     });
 
