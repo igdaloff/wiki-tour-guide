@@ -7,8 +7,8 @@
         >
       </h3>
       <span class="">to easily access it from your home screen.</span>
-      <a @click="installer()" href="" class="install-link">Install </a>
-      <a href="" class="no-thanks">No thanks</a>
+      <a @click="installer" href="" class="install-link">Install </a>
+      <a @click="hideAppInstallBanner" href="" class="no-thanks">No thanks</a>
     </div>
     <Header />
     <transition-group
@@ -78,14 +78,16 @@
   }
 
   ul,
-  header {
+  header,
+  .install-banner {
     opacity: 0;
   }
 }
 
 #loaded {
   ul,
-  header {
+  header,
+  .install-banner {
     opacity: 1;
     transition: 3s opacity ease-out;
   }
@@ -543,6 +545,11 @@ export default {
     });
   },
   methods: {
+    hideAppInstallBanner(e) {
+      e.preventDefault();
+
+      this.installBtn = "none";
+    },
     showDescription(e) {
       const placeName = e.target.getAttribute("data-name");
       const descriptionElement = document.querySelector(

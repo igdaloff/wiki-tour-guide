@@ -100,10 +100,12 @@ button,
   -webkit-appearance: button;
 }
 
+// TODO: Refactor this so we don't have to add new elements here each time we add new html to place-list view that we want to transition in
 .fade-enter-from {
   &.home,
   &.place-list ul,
-  &.place-list header {
+  &.place-list header,
+  &.place-list .install-banner {
     opacity: 0;
   }
 }
