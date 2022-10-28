@@ -15,8 +15,8 @@
 
     <transition-group
       appear
-      @before-enter="beforeEnter"
-      @enter="enter"
+      @before-enter="beforePlaceCardsEnter"
+      @enter="asPlaceCardEnter"
       tag="ul"
       name="place-list">
       <li v-for="(place, index) in placeData" :key="index" :data-index="index">
@@ -331,9 +331,8 @@ export default {
     }
   },
 
-  //Loading transitions for place list items
-  //TODO: HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
   setup() {
+    //Loading transitions for place list items
     const beforePlaceCardsEnter = (el) => {
       el.style.transform = 'translateY(20px)'
       el.style.opacity = 0
@@ -382,7 +381,7 @@ export default {
       console.log('PWA was installed')
     })
 
-    // If geolocation request is successful (if user opts into browser prompt), run the following code. Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs
+    // If user opts into geolocation browser prompt, run the following code. (Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs)
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
     const geolocationSuccess = (position) => {
       this.lat = position.coords.latitude
@@ -390,7 +389,6 @@ export default {
       const latCache = this.lat.toFixed(2)
       const longCache = this.long.toFixed(2)
 
-      // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       // Documentation: https://www.mediawiki.org/wiki/API:Query
       let url = 'https://en.wikipedia.org/w/api.php?origin=*'
       const params = {
@@ -416,8 +414,6 @@ export default {
         localStorage.getItem(`place-data-cache-${latCache}.${longCache}`)
       )
 
-      // Use URL generated above in axios call, return list of places in an array; we'll loop through these below
-
       // If cached place list exists, we assume cached place data exists as well, so we use data from each cache to set corresponding data sets
       if (cachedPlaceData) {
         this.placeData = cachedPlaceData
@@ -438,7 +434,6 @@ export default {
             return allPlaceData
           })
 
-          // When above API call completes, loop through our array of place names (created above) and query Wikipedia API for each.
           // Relevant API docs:
           // - Thumbnail: https://www.mediawiki.org/wiki/Extension:PageImages
           // - First paragraph: https://www.mediawiki.org/wiki/API:Get_the_contents_of_a_page#Method_3:_Use_the_TextExtracts_API
@@ -477,7 +472,7 @@ export default {
                     )
                   : null
 
-              // Get distance between user and place
+              // Get distance between user and each place
               function getDistanceFromLatLong(lat1, long1, lat2, long2) {
                 const R = 6371 // Radius of the earth in km!
                 const dLat = deg2rad(lat2 - lat1) // deg2rad below
@@ -497,7 +492,7 @@ export default {
                 return deg * (Math.PI / 180)
               }
 
-              // Store result in an object to be appended to array below
+              // Store each place's data in an object to be appended to array below
               const placeDataObj = {
                 name: placeName,
                 description: placeDescription,
@@ -511,7 +506,7 @@ export default {
                 this.placeData.push(placeDataObj)
               }
 
-              // Sort by distance
+              // Sort places by distance from user
               this.placeData.sort(
                 (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
               )
@@ -545,9 +540,7 @@ export default {
     navigator.geolocation.getCurrentPosition(
       geolocationSuccess,
       geolocationError,
-      {
-        maximumAge: 360000,
-      }
+      { maximumAge: 360000 }
     )
   },
   methods: {
@@ -574,6 +567,11 @@ export default {
         e.target.textContent = 'pause_circle'
         e.target.classList.add('pause')
         e.target.classList.remove('play')
+
+        utterance.onend = function (e) {
+          e.target.textContent = 'play_circle'
+          e.target.classList.add('play')
+        }
       } else {
         speech.pause()
         e.target.textContent = 'play_circle'
