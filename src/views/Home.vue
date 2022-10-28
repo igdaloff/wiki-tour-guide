@@ -43,7 +43,7 @@ $grid-color: #393939;
 
 .home {
   max-width: 800px;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   position: relative;
   margin: 0 auto;
