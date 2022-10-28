@@ -190,7 +190,7 @@
 .place-list {
   @include container;
   position: relative;
-  height: 100vh;
+  height: 100%;
 }
 
 .place-image-container {
