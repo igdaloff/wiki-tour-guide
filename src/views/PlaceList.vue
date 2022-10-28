@@ -6,34 +6,34 @@
           >download</i
         >
       </h3>
-      <span class="">to easily access it from your home screen.</span>
+      <span>to easily access it from your home screen.</span>
       <a @click="installer" href="" class="install-link">Install </a>
       <a @click="hideAppInstallBanner" href="" class="no-thanks">No thanks</a>
     </div>
+
     <Header />
+
     <transition-group
       appear
       @before-enter="beforeEnter"
       @enter="enter"
       tag="ul"
-      name="place-list"
-    >
+      name="place-list">
       <li v-for="(place, index) in placeData" :key="index" :data-index="index">
-        <div class="place-image-container" @click="showDescription">
+        <div class="place-image-container" @click="showPlaceText">
           <img
             :src="place.imgUrl"
             :alt="`Photo of ${place.name}`"
-            :data-name="place.name"
-          />
+            :data-name="place.name" />
         </div>
         <div class="place-header">
           <span
             class="play material-symbols-outlined"
-            @click="speakDescription(place.description, $event)"
+            @click="togglePlaceTextSpeech(place.description, $event)"
             >play_circle</span
           >
           <div class="place-header-meta">
-            <h2 @click="showDescription" :data-name="place.name">
+            <h2 @click="showPlaceText" :data-name="place.name">
               {{ place.name }}
             </h2>
             <div class="distance">
@@ -54,11 +54,13 @@
         </div>
       </li>
     </transition-group>
+
     <p v-if="noPlaces == true" class="empty-state">
       No places found within 10mi. Damb. Try
       <span>expanding your search radius</span>
       <em> (a feature which doesn't exist yet)</em>.
     </p>
+
     <span v-if="loading" class="orb">
       <span class="loading-text">Searching…</span>
       <span class="orb-pointer"></span>
@@ -67,7 +69,7 @@
 </template>
 
 <style lang="scss">
-@import "../assets/mixins.scss";
+@import '../assets/mixins.scss';
 
 // Loading stuff
 #loading {
@@ -98,7 +100,7 @@
   animation: pointer-spin 3s ease-in-out infinite;
 
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     top: -34px;
     left: calc(50% - 10px);
@@ -255,7 +257,7 @@
 
 .play,
 .pause {
-  font-variation-settings: "FILL" 1;
+  font-variation-settings: 'FILL' 1;
   font-size: 3em;
   cursor: pointer;
   @include hover-transition;
@@ -306,12 +308,12 @@
 </style>
 
 <script>
-import axios from "axios";
-import gsap from "gsap";
-import Header from "../components/Header";
+import axios from 'axios'
+import gsap from 'gsap'
+import Header from '../components/Header'
 
 export default {
-  name: "PlaceList",
+  name: 'PlaceList',
 
   components: {
     Header,
@@ -319,24 +321,24 @@ export default {
 
   data() {
     return {
-      installBtn: "none",
+      installBtn: 'none',
       installer: undefined,
       placeData: [],
-      lat: "",
-      long: "",
+      lat: '',
+      long: '',
       loading: true,
       noPlaces: false,
-    };
+    }
   },
 
   //Loading transitions for place list items
   //TODO: HOW DO WE TRIGGER THIS ONLY WHEN LOADING IS FINISHED? AS IS, THE STAGGERING IS USUALLY NOT VISIBLE TO USER.
   setup() {
-    const beforeEnter = (el) => {
-      el.style.transform = "translateY(20px)";
-      el.style.opacity = 0;
-    };
-    const enter = (el, done) => {
+    const beforePlaceCardsEnter = (el) => {
+      el.style.transform = 'translateY(20px)'
+      el.style.opacity = 0
+    }
+    const asPlaceCardEnter = (el, done) => {
       // First argument, el, is element we're animating; second element contains our animation properties
       gsap.to(el, {
         duration: 0.8,
@@ -344,87 +346,87 @@ export default {
         opacity: 1,
         onComplete: done,
         delay: el.dataset.index * 0.2,
-      });
-    };
+      })
+    }
 
-    return { beforeEnter, enter };
+    return { beforePlaceCardsEnter, asPlaceCardEnter }
   },
 
   created() {
     //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
-    let installPrompt;
-    window.addEventListener("beforeinstallprompt", (e) => {
+    let installPrompt
+    window.addEventListener('beforeinstallprompt', (e) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
-      e.preventDefault();
+      e.preventDefault()
 
       // Stash the event so it can be triggered later
-      installPrompt = e;
+      installPrompt = e
 
       // Show previously hidden banner
-      this.installBtn = "block";
-    });
+      this.installBtn = 'block'
+    })
 
     this.installer = () => {
-      this.installBtn = "none";
-      installPrompt.prompt();
-    };
+      this.installBtn = 'none'
+      installPrompt.prompt()
+    }
 
-    window.addEventListener("appinstalled", () => {
+    window.addEventListener('appinstalled', () => {
       // Hide the app-provided install promotion
-      hideInstallPromotion();
+      hideInstallPromotion()
 
       // Clear the deferredPrompt so it can be garbage collected
-      deferredPrompt = null;
+      deferredPrompt = null
 
       // Eventually, let's send an analytics event here to indicate successful install
-      console.log("PWA was installed");
-    });
+      console.log('PWA was installed')
+    })
 
     // If geolocation request is successful (if user opts into browser prompt), run the following code. Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
-    const success = (position) => {
-      this.lat = position.coords.latitude;
-      this.long = position.coords.longitude;
-      const latCache = this.lat.toFixed(2);
-      const longCache = this.long.toFixed(2);
+    const geolocationSuccess = (position) => {
+      this.lat = position.coords.latitude
+      this.long = position.coords.longitude
+      const latCache = this.lat.toFixed(2)
+      const longCache = this.long.toFixed(2)
 
       // Use lat and long to generate Open Trip Map API request URL; this gets us the list of nearby places of interest
       // Documentation: https://www.mediawiki.org/wiki/API:Query
-      let url = "https://en.wikipedia.org/w/api.php?origin=*";
+      let url = 'https://en.wikipedia.org/w/api.php?origin=*'
       const params = {
-        action: "query",
-        generator: "geosearch",
-        ggscoord: this.lat + "|" + this.long,
-        ggsradius: "10000",
-        ggslimit: "20",
-        format: "json",
-        exintro: "true",
-        prop: "coordinates|info|extracts|pageimages",
-        explaintext: "1",
-        exlimit: "max",
-        inprop: "url",
-        pithumbsize: "500",
-      };
+        action: 'query',
+        generator: 'geosearch',
+        ggscoord: this.lat + '|' + this.long,
+        ggsradius: '10000',
+        ggslimit: '20',
+        format: 'json',
+        exintro: 'true',
+        prop: 'coordinates|info|extracts|pageimages',
+        explaintext: '1',
+        exlimit: 'max',
+        inprop: 'url',
+        pithumbsize: '500',
+      }
 
       Object.keys(params).forEach(function (key) {
-        url += "&" + key + "=" + params[key];
-      });
+        url += '&' + key + '=' + params[key]
+      })
 
       const cachedPlaceData = JSON.parse(
         localStorage.getItem(`place-data-cache-${latCache}.${longCache}`)
-      );
+      )
 
       // Use URL generated above in axios call, return list of places in an array; we'll loop through these below
 
       // If cached place list exists, we assume cached place data exists as well, so we use data from each cache to set corresponding data sets
       if (cachedPlaceData) {
-        this.placeData = cachedPlaceData;
+        this.placeData = cachedPlaceData
 
         //If in development env, set loading flag immediately for quicker refresh during dev
-        if (process.env.NODE_ENV == "development") {
-          this.loading = false;
+        if (process.env.NODE_ENV == 'development') {
+          this.loading = false
         } else {
-          setTimeout(() => (this.loading = false), 3000);
+          setTimeout(() => (this.loading = false), 3000)
         }
 
         // If cached data does not exist, we make our 2 get requests for the data
@@ -432,8 +434,8 @@ export default {
         axios
           .get(url)
           .then((response) => {
-            const allPlaceData = response.data.query.pages;
-            return allPlaceData;
+            const allPlaceData = response.data.query.pages
+            return allPlaceData
           })
 
           // When above API call completes, loop through our array of place names (created above) and query Wikipedia API for each.
@@ -443,56 +445,56 @@ export default {
           // - Url: https://www.mediawiki.org/w/api.php?action=help&modules=query%2Binfo
           .then((allPlaceData) => {
             for (const property in allPlaceData) {
-              const placeName = allPlaceData[property].title;
-              const placeDescription = allPlaceData[property].extract;
-              const placeWikiUrl = allPlaceData[property].canonicalurl;
+              const placeName = allPlaceData[property].title
+              const placeDescription = allPlaceData[property].extract
+              const placeWikiUrl = allPlaceData[property].canonicalurl
               const placeImgUrl =
                 allPlaceData[property].thumbnail === undefined
                   ? null
-                  : allPlaceData[property].thumbnail.source;
+                  : allPlaceData[property].thumbnail.source
 
               const placeLat =
                 allPlaceData[property].coordinates === undefined
-                  ? ""
-                  : allPlaceData[property].coordinates[0].lat;
+                  ? ''
+                  : allPlaceData[property].coordinates[0].lat
               const placeLong =
                 allPlaceData[property].coordinates === undefined
-                  ? ""
-                  : allPlaceData[property].coordinates[0].lon;
+                  ? ''
+                  : allPlaceData[property].coordinates[0].lon
               const placeMapUrl =
-                placeLat != ""
+                placeLat != ''
                   ? `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
                   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                       placeName
-                    )}`;
+                    )}`
               const distanceFromUser =
-                placeLat != ""
+                placeLat != ''
                   ? getDistanceFromLatLong(
                       this.lat,
                       this.long,
                       placeLat,
                       placeLong
                     )
-                  : null;
+                  : null
 
               // Get distance between user and place
               function getDistanceFromLatLong(lat1, long1, lat2, long2) {
-                const R = 6371; // Radius of the earth in km!
-                const dLat = deg2rad(lat2 - lat1); // deg2rad below
-                const dLong = deg2rad(long2 - long1);
+                const R = 6371 // Radius of the earth in km!
+                const dLat = deg2rad(lat2 - lat1) // deg2rad below
+                const dLong = deg2rad(long2 - long1)
                 const a =
                   Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                   Math.cos(deg2rad(lat1)) *
                     Math.cos(deg2rad(lat2)) *
                     Math.sin(dLong / 2) *
-                    Math.sin(dLong / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                const d = (R * c * 0.621371).toFixed(2); // Distance in mi
-                return d;
+                    Math.sin(dLong / 2)
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                const d = (R * c * 0.621371).toFixed(2) // Distance in mi
+                return d
               }
 
               function deg2rad(deg) {
-                return deg * (Math.PI / 180);
+                return deg * (Math.PI / 180)
               }
 
               // Store result in an object to be appended to array below
@@ -503,75 +505,81 @@ export default {
                 imgUrl: placeImgUrl,
                 mapUrl: placeMapUrl,
                 distance: distanceFromUser,
-              };
+              }
 
               if (placeImgUrl) {
-                this.placeData.push(placeDataObj);
+                this.placeData.push(placeDataObj)
               }
 
               // Sort by distance
               this.placeData.sort(
                 (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
-              );
+              )
 
               // Cache place data in localstorage
               localStorage.setItem(
                 `place-data-cache-${latCache}.${longCache}`,
                 JSON.stringify(this.placeData)
-              );
+              )
 
               if (this.loading) {
-                this.loading === false;
+                this.loading === false
               }
             }
           })
           .then(() => new Promise((resolve) => setTimeout(resolve, 1000))) //Fictional delay to show loader animation and let place cards get in place
           .catch((error) => console.log(`${error}`))
           .finally(() => {
-            this.loading = false;
-          });
+            this.loading = false
+          })
       }
-    };
+    }
 
     // Log any errors from Geolocation API request
-    const error = (err) => {
-      console.log(err);
-    };
+    const geolocationError = (err) => {
+      console.log(err)
+    }
 
     // Geolocation API the causes location browser prompt. We wait for user to opt in (success) before running success() function above
     // TODO: I HARDCODED THE MAXIMUM AGE (CACHE) SO THAT PAGE RELOAD WOULD HAPPEN QUICKER - HOW CAN WE ALLOW USER TO FORCE GETTING NEW COORDS?
-    navigator.geolocation.getCurrentPosition(success, error, {
-      maximumAge: 360000,
-    });
+    navigator.geolocation.getCurrentPosition(
+      geolocationSuccess,
+      geolocationError,
+      {
+        maximumAge: 360000,
+      }
+    )
   },
   methods: {
     hideAppInstallBanner(e) {
-      e.preventDefault();
+      e.preventDefault()
 
-      this.installBtn = "none";
+      this.installBtn = 'none'
     },
-    showDescription(e) {
-      const placeName = e.target.getAttribute("data-name");
+    showPlaceText(e) {
+      const placeName = e.target.getAttribute('data-name')
       const descriptionElement = document.querySelector(
         `.place-description[data-name='${placeName}']`
-      );
-      descriptionElement.classList.add("show");
+      )
+      descriptionElement.classList.add('show')
     },
-    speakDescription(textToSay, event) {
-      let utterance = new SpeechSynthesisUtterance(textToSay);
+    togglePlaceTextSpeech(textToSay, e) {
+      let utterance = new SpeechSynthesisUtterance(textToSay)
+      utterance.rate = 0.9
+      const speech = window.speechSynthesis
 
-      if (event.target.classList.contains("play")) {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-        event.target.textContent = "pause_circle";
-        event.target.classList.add("pause");
-        event.target.classList.remove("play");
+      if (e.target.classList.contains('play')) {
+        speech.cancel()
+        speech.speak(utterance)
+        e.target.textContent = 'pause_circle'
+        e.target.classList.add('pause')
+        e.target.classList.remove('play')
       } else {
-        window.speechSynthesis.pause();
-        event.target.textContent = "play_circle";
-        event.target.classList.add("play");
+        speech.pause()
+        e.target.textContent = 'play_circle'
+        e.target.classList.add('play')
       }
     },
   },
-};
+}
 </script>

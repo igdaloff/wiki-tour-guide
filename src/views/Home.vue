@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <div class="grid">
-      <!-- <div class="grid-lines"></div> -->
       <div class="grid-lines-z">
         <div class="grid-line grid-line-z"></div>
         <div class="grid-line grid-line-z"></div>
@@ -38,7 +37,7 @@
 <script></script>
 
 <style lang="scss">
-@import "../assets/mixins.scss";
+@import '../assets/mixins.scss';
 
 $grid-color: #393939;
 
@@ -66,7 +65,7 @@ $grid-color: #393939;
     @include orb;
 
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       display: block;
       width: 1000%;
