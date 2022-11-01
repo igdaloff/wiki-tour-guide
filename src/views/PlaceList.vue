@@ -39,8 +39,10 @@
             <div class="distance">
               <a :href="place.mapUrl" target="_blank">
                 <template v-if="place.mapUrl && place.distance">
-                  {{ place.distance }} mi away
-                  <span class="material-symbols-outlined">directions_walk</span>
+                  {{ place.distance }} mi away<span
+                    class="material-symbols-outlined"
+                    >directions_walk</span
+                  >
                 </template>
                 <template v-else> Open in Map </template>
               </a>
@@ -235,15 +237,13 @@
   color: var(--med-grey);
   font-size: 1em;
   text-decoration: none;
-  display: flex;
-  align-items: center;
-  line-height: 1.3;
 
   span {
+    position: relative;
+    top: 5px;
+    padding-left: 3px;
     font-size: 1.2em;
-    padding-left: 2px;
-    padding-top: 1px;
-    position: absolute;
+    font-weight: 300;
   }
 
   a {
