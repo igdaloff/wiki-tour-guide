@@ -139,7 +139,7 @@
     display: inline-block;
     margin-top: 0.25em;
     margin-bottom: 1em;
-    font-size: 1em;
+    font-size: 0.9em;
     line-height: 1.1;
   }
 
@@ -147,6 +147,7 @@
     position: relative;
     top: 5px;
     margin-left: 8px;
+    font-weight: 600;
   }
 
   .install-link {
