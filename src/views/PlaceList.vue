@@ -332,6 +332,7 @@ export default {
 
   created() {
     //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
+    //Note that as of this writing, on mobile beforeinstallprompt is really only supported on Chrome for Android, Android Browser, and Opera, and no major iOS browsers. There's a fix for iOS below.
     let installPrompt
     window.addEventListener('beforeinstallprompt', (e) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -359,6 +360,21 @@ export default {
       // Eventually, let's send an analytics event here to indicate successful install
       console.log('PWA was installed')
     })
+
+    // Fix for lack of beforeinstallprompt support on iOS
+
+    // Detects if device is on iOS
+    const isIos = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase()
+      return /iphone|ipad|ipod/.test(userAgent)
+    }
+    // Detects if device is in standalone mode
+    const isInStandaloneMode = () => 'standalone' in window.navigator && window.navigator.standalone
+
+    // Checks if should display install popup notification:
+    if (isIos() && !isInStandaloneMode()) {
+      this.installBtn = 'block'
+    }
 
     // If user opts into geolocation browser prompt, run the following code. (Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs)
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
