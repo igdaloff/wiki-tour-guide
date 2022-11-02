@@ -147,7 +147,10 @@
     position: relative;
     top: 5px;
     margin-left: 8px;
-    font-weight: 600;
+
+    @media screen and (max-width: $medium) {
+      font-weight: 800;
+    }
   }
 
   .install-link {
