@@ -148,7 +148,7 @@ $grid-color: #393939;
   position: absolute;
   top: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   perspective: 375px;
 
@@ -258,10 +258,6 @@ $x-distance-interval: 20px;
   height: 100%;
   position: absolute;
   z-index: 1;
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(#222, 0%) 0%,
-    rgba(#222, 100%) 90%
-  );
+  background: radial-gradient(ellipse at 50% 0%, rgba(#222, 0%) 0%, rgba(#222, 100%) 90%);
 }
 </style>
