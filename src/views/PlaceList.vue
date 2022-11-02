@@ -1,11 +1,7 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
     <div :style="{ display: installBtn }" class="install-banner">
-      <h3>
-        Install this App<i class="material-symbols-outlined download-icon"
-          >download</i
-        >
-      </h3>
+      <h3>Install this App<i class="material-symbols-outlined download-icon">download</i></h3>
       <span>to easily access it from your home screen.</span>
       <a @click="installer" href="" class="install-link">Install </a>
       <a @click="hideAppInstallBanner" href="" class="no-thanks">No thanks</a>
@@ -13,37 +9,20 @@
 
     <Header />
 
-    <transition-group
-      appear
-      @before-enter="beforePlaceCardsEnter"
-      @enter="asPlaceCardEnter"
-      tag="ul"
-      name="place-list">
+    <transition-group appear @before-enter="beforePlaceCardsEnter" @enter="asPlaceCardEnter" tag="ul" name="place-list">
       <li v-for="(place, index) in placeData" :key="index" :data-index="index">
         <div class="place-image-container" @click="showPlaceText">
-          <img
-            :src="place.imgUrl"
-            :alt="`Photo of ${place.name}`"
-            :data-name="place.name" />
+          <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" :data-name="place.name" />
         </div>
         <div class="place-header">
-          <span
-            class="play material-symbols-outlined"
-            @click="togglePlaceTextSpeech(place.description, $event)"
-            >play_circle</span
-          >
+          <span class="play material-symbols-outlined" @click="togglePlaceTextSpeech(place.description, $event)">play_circle</span>
           <div class="place-header-meta">
             <h2 @click="showPlaceText" :data-name="place.name">
               {{ place.name }}
             </h2>
             <div class="distance">
               <a :href="place.mapUrl" target="_blank">
-                <template v-if="place.mapUrl && place.distance">
-                  {{ place.distance }} mi away<span
-                    class="material-symbols-outlined"
-                    >directions_walk</span
-                  >
-                </template>
+                <template v-if="place.mapUrl && place.distance"> {{ place.distance }} mi away<span class="material-symbols-outlined">directions_walk</span> </template>
                 <template v-else> Open in Map </template>
               </a>
             </div>
@@ -410,9 +389,7 @@ export default {
         url += '&' + key + '=' + params[key]
       })
 
-      const cachedPlaceData = JSON.parse(
-        localStorage.getItem(`place-data-cache-${latCache}.${longCache}`)
-      )
+      const cachedPlaceData = JSON.parse(localStorage.getItem(`place-data-cache-${latCache}.${longCache}`))
 
       // If cached place list exists, we assume cached place data exists as well, so we use data from each cache to set corresponding data sets
       if (cachedPlaceData) {
@@ -421,6 +398,7 @@ export default {
         //If in development env, set loading flag immediately for quicker refresh during dev
         if (process.env.NODE_ENV == 'development') {
           this.loading = false
+          console.log('in development mode')
         } else {
           setTimeout(() => (this.loading = false), 3000)
         }
@@ -443,46 +421,19 @@ export default {
               const placeName = allPlaceData[property].title
               const placeDescription = allPlaceData[property].extract
               const placeWikiUrl = allPlaceData[property].canonicalurl
-              const placeImgUrl =
-                allPlaceData[property].thumbnail === undefined
-                  ? null
-                  : allPlaceData[property].thumbnail.source
+              const placeImgUrl = allPlaceData[property].thumbnail === undefined ? null : allPlaceData[property].thumbnail.source
 
-              const placeLat =
-                allPlaceData[property].coordinates === undefined
-                  ? ''
-                  : allPlaceData[property].coordinates[0].lat
-              const placeLong =
-                allPlaceData[property].coordinates === undefined
-                  ? ''
-                  : allPlaceData[property].coordinates[0].lon
-              const placeMapUrl =
-                placeLat != ''
-                  ? `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}`
-                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                      placeName
-                    )}`
-              const distanceFromUser =
-                placeLat != ''
-                  ? getDistanceFromLatLong(
-                      this.lat,
-                      this.long,
-                      placeLat,
-                      placeLong
-                    )
-                  : null
+              const placeLat = allPlaceData[property].coordinates === undefined ? '' : allPlaceData[property].coordinates[0].lat
+              const placeLong = allPlaceData[property].coordinates === undefined ? '' : allPlaceData[property].coordinates[0].lon
+              const placeMapUrl = placeLat != '' ? `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${placeLat},${placeLong}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`
+              const distanceFromUser = placeLat != '' ? getDistanceFromLatLong(this.lat, this.long, placeLat, placeLong) : null
 
               // Get distance between user and each place
               function getDistanceFromLatLong(lat1, long1, lat2, long2) {
                 const R = 6371 // Radius of the earth in km!
                 const dLat = deg2rad(lat2 - lat1) // deg2rad below
                 const dLong = deg2rad(long2 - long1)
-                const a =
-                  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(deg2rad(lat1)) *
-                    Math.cos(deg2rad(lat2)) *
-                    Math.sin(dLong / 2) *
-                    Math.sin(dLong / 2)
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2)
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
                 const d = (R * c * 0.621371).toFixed(2) // Distance in mi
                 return d
@@ -507,15 +458,10 @@ export default {
               }
 
               // Sort places by distance from user
-              this.placeData.sort(
-                (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
-              )
+              this.placeData.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
 
               // Cache place data in localstorage
-              localStorage.setItem(
-                `place-data-cache-${latCache}.${longCache}`,
-                JSON.stringify(this.placeData)
-              )
+              localStorage.setItem(`place-data-cache-${latCache}.${longCache}`, JSON.stringify(this.placeData))
 
               if (this.loading) {
                 this.loading === false
@@ -537,11 +483,7 @@ export default {
 
     // Geolocation API the causes location browser prompt. We wait for user to opt in (success) before running success() function above
     // TODO: I HARDCODED THE MAXIMUM AGE (CACHE) SO THAT PAGE RELOAD WOULD HAPPEN QUICKER - HOW CAN WE ALLOW USER TO FORCE GETTING NEW COORDS?
-    navigator.geolocation.getCurrentPosition(
-      geolocationSuccess,
-      geolocationError,
-      { maximumAge: 360000 }
-    )
+    navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError, { maximumAge: 360000 })
   },
   methods: {
     hideAppInstallBanner(e) {
@@ -551,9 +493,7 @@ export default {
     },
     showPlaceText(e) {
       const placeName = e.target.getAttribute('data-name')
-      const descriptionElement = document.querySelector(
-        `.place-description[data-name='${placeName}']`
-      )
+      const descriptionElement = document.querySelector(`.place-description[data-name='${placeName}']`)
       descriptionElement.classList.add('show')
     },
     togglePlaceTextSpeech(textToSay, e) {

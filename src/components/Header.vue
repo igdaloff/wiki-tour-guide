@@ -2,9 +2,7 @@
   <header class="main-header">
     <nav>
       <h1>Places Nearby</h1>
-      <a href="" class="settings-link"
-        ><span class="material-symbols-outlined"> settings </span></a
-      >
+      <!-- <a href="" class="settings-link"><span class="material-symbols-outlined">settings</span></a> -->
     </nav>
   </header>
 </template>
@@ -20,7 +18,7 @@
 nav {
   display: flex;
   justify-content: space-between;
-  padding-top: 4em;
+  padding: 4em 0 0.5em;
   margin-bottom: 1.5em;
   border-bottom: 1px solid;
 }
@@ -29,9 +27,11 @@ nav {
   position: relative;
   color: var(--white);
   pointer-events: none;
+  line-height: 1;
 
   span {
     font-variation-settings: 'wght' 200;
+    line-height: inherit;
   }
 }
 </style>
