@@ -176,10 +176,15 @@
   @include container;
   position: relative;
   height: 100%;
+
+  li {
+    margin-bottom: calc(2.5em * var(--base));
+  }
 }
 
 .place-image-container {
   position: relative;
+  margin-bottom: calc(0.5em * var(--base));
   text-align: center;
   background: var(--grey);
   border-radius: 10px;
@@ -201,7 +206,6 @@
 
 .place-header {
   display: flex;
-  padding: calc(0.5em * var(--base)) 0 calc(2.5em * var(--base));
 
   h2 {
     font-weight: 700;
@@ -257,6 +261,7 @@
 
 .place-description {
   overflow: hidden;
+  margin-top: calc(0.5em * var(--base));
   max-height: 0;
   transition: 0.7s ease;
 
@@ -267,7 +272,6 @@
   }
 
   p {
-    margin-bottom: 2em;
     padding-bottom: 1em;
     border-bottom: 1px solid;
   }
