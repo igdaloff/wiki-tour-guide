@@ -245,16 +245,30 @@
 
 .stopped,
 .playing {
+  position: relative;
   font-variation-settings: 'FILL' 1;
   font-size: 3em;
   cursor: pointer;
-  @include hover-transition;
+  width: 48px;
+  height: 48px;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 50px;
+    height: 50px;
+    border: 1px solid white;
+    border-radius: 100%;
+    opacity: 0;
+    @include hover-transition;
+  }
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      box-shadow: 0 0 0 0px var(--black), 0 0 0 1px var(--white);
-      border-radius: 100%;
-      padding: 0;
+    &:hover:after {
+      opacity: 1;
+      @include hover-transition;
     }
   }
 }

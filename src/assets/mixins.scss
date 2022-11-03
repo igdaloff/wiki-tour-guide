@@ -39,7 +39,7 @@
 }
 
 @mixin hover-transition {
-  transition: 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 $orb-height: 110px;
