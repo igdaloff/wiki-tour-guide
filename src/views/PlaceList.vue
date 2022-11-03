@@ -11,13 +11,13 @@
 
     <transition-group appear @before-enter="beforePlaceCardsEnter" @enter="asPlaceCardEnter" tag="ul" name="place-list">
       <li v-for="(place, index) in placeData" :key="index" :data-index="index">
-        <div class="place-image-container" @click="showPlaceText">
+        <div class="place-image-container" @click="togglePlaceText(index, $event)">
           <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" :data-name="place.name" />
         </div>
         <div class="place-header">
           <span class="material-symbols-outlined speech-toggle stopped" @click="togglePlaceTextSpeech(place.description, $event)">play_circle</span>
           <div class="place-header-meta">
-            <h2 @click="showPlaceText" :data-name="place.name">
+            <h2 @click="togglePlaceText(index, $event)" :data-name="place.name">
               {{ place.name }}
             </h2>
             <div class="distance">
@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <div class="place-description" :data-name="place.name">
+        <div class="place-description" :class="[index == openPlaceTextIndex ? 'show' : '']" :data-name="place.name">
           <a :href="place.wikiUrl" target="_blank">Read on Wikipedia</a>
           <p>{{ place.description }}</p>
         </div>
@@ -316,6 +316,7 @@ export default {
       long: '',
       loading: true,
       noPlaces: false,
+      openPlaceTextIndex: -1,
     }
   },
 
@@ -516,10 +517,10 @@ export default {
 
       this.installBtn = 'none'
     },
-    showPlaceText(e) {
-      const placeName = e.target.getAttribute('data-name')
-      const descriptionElement = document.querySelector(`.place-description[data-name='${placeName}']`)
-      descriptionElement.classList.add('show')
+    togglePlaceText(index, e) {
+      this.openPlaceTextIndex = index
+      const descriptionText = document.querySelector(`[data-index="${index}"]`)
+      descriptionText.scrollIntoView({ behavior: 'smooth' })
     },
     togglePlaceTextSpeech(textToSay, e) {
       let utterance = new SpeechSynthesisUtterance(textToSay)
