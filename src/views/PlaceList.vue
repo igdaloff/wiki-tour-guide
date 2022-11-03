@@ -15,14 +15,14 @@
           <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" :data-name="place.name" />
         </div>
         <div class="place-header">
-          <span class="play material-symbols-outlined" @click="togglePlaceTextSpeech(place.description, $event)">play_circle</span>
+          <span class="material-symbols-outlined speech-toggle stopped" @click="togglePlaceTextSpeech(place.description, $event)">play_circle</span>
           <div class="place-header-meta">
             <h2 @click="showPlaceText" :data-name="place.name">
               {{ place.name }}
             </h2>
             <div class="distance">
               <a :href="place.mapUrl" target="_blank">
-                <template v-if="place.mapUrl && place.distance"> {{ place.distance }} mi away<span class="material-symbols-outlined">directions_walk</span> </template>
+                <template v-if="place.mapUrl && place.distance"> {{ place.distance }} mi away<span class="material-symbols-outlined">directions_walk</span></template>
                 <template v-else> Open in Map </template>
               </a>
             </div>
@@ -201,7 +201,7 @@
 
 .place-header {
   display: flex;
-  padding: calc(0.25em * var(--base)) 0 calc(1.5em * var(--base));
+  padding: calc(0.5em * var(--base)) 0 calc(2.5em * var(--base));
 
   h2 {
     font-weight: 700;
@@ -227,6 +227,7 @@
     padding-left: 3px;
     font-size: 1.2em;
     font-weight: 300;
+    line-height: 0.5;
   }
 
   a {
@@ -238,8 +239,8 @@
   }
 }
 
-.play,
-.pause {
+.stopped,
+.playing {
   font-variation-settings: 'FILL' 1;
   font-size: 3em;
   cursor: pointer;
@@ -403,6 +404,7 @@ export default {
         exlimit: 'max',
         inprop: 'url',
         pithumbsize: '500',
+        // exchars: '40', //For testing only so speechsynthesis doesn't last forever
       }
 
       Object.keys(params).forEach(function (key) {
@@ -418,7 +420,6 @@ export default {
         //If in development env, set loading flag immediately for quicker refresh during dev
         if (process.env.NODE_ENV == 'development') {
           this.loading = false
-          console.log('in development mode')
         } else {
           setTimeout(() => (this.loading = false), 3000)
         }
@@ -520,22 +521,25 @@ export default {
       let utterance = new SpeechSynthesisUtterance(textToSay)
       utterance.rate = 0.9
       const speech = window.speechSynthesis
+      const speechToggleButton = e.target
 
-      if (e.target.classList.contains('play')) {
+      if (e.target.classList.contains('stopped')) {
         speech.cancel()
         speech.speak(utterance)
-        e.target.textContent = 'pause_circle'
-        e.target.classList.add('pause')
-        e.target.classList.remove('play')
-
-        utterance.onend = function (e) {
-          e.target.textContent = 'play_circle'
-          e.target.classList.add('play')
-        }
+        e.target.textContent = 'stop_circle'
+        e.target.classList.add('playing')
+        e.target.classList.remove('stopped')
       } else {
-        speech.pause()
+        speech.cancel()
         e.target.textContent = 'play_circle'
-        e.target.classList.add('play')
+        e.target.classList.add('stopped')
+        e.target.classList.remove('playing')
+      }
+
+      utterance.onend = function () {
+        speechToggleButton.classList.add('stopped')
+        speechToggleButton.classList.remove('playing')
+        speechToggleButton.textContent = 'play_circle'
       }
     },
   },
