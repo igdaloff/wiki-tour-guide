@@ -1,6 +1,6 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
-    <div :style="{ display: installBtn }" class="install-banner">
+    <div :style="{ display: pwaInstallBannerDisplay }" class="install-banner">
       <h3>Install this App<i class="material-symbols-outlined download-icon">download</i></h3>
       <span>to easily access it from your home screen.</span>
       <a @click="installer" href="" class="install-link">Install </a>
@@ -309,8 +309,8 @@ export default {
 
   data() {
     return {
-      installBtn: 'none',
-      installer: undefined,
+      pwaInstallBannerDisplay: 'none',
+      pwaInstallPrompt: undefined,
       placeData: [],
       lat: '',
       long: '',
@@ -342,22 +342,22 @@ export default {
 
   created() {
     //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
-    //Note that as of this writing, on mobile beforeinstallprompt is really only supported on Chrome for Android, Android Browser, and Opera, and no major iOS browsers. There's a fix for iOS below.
-    let installPrompt
+    //Note that as of this writing, on mobile beforeinstallprompt is only supported on Chrome for Android, Android Browser, and Opera, and no major iOS browsers. There's a fix for iOS below.
+    let pwaInstallPrompt
     window.addEventListener('beforeinstallprompt', (e) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault()
 
       // Stash the event so it can be triggered later
-      installPrompt = e
+      pwaInstallPrompt = e
 
       // Show previously hidden banner
-      this.installBtn = 'block'
+      this.pwaInstallBannerDisplay = 'block'
     })
 
     this.installer = () => {
-      this.installBtn = 'none'
-      installPrompt.prompt()
+      this.pwaInstallBannerDisplay = 'none'
+      pwaInstallPrompt.prompt()
     }
 
     window.addEventListener('appinstalled', () => {
@@ -370,21 +370,6 @@ export default {
       // Eventually, let's send an analytics event here to indicate successful install
       console.log('PWA was installed')
     })
-
-    // Fix for lack of beforeinstallprompt support on iOS
-
-    // Detects if device is on iOS
-    const isIos = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase()
-      return /iphone|ipad|ipod/.test(userAgent)
-    }
-    // Detects if device is in standalone mode
-    const isInStandaloneMode = () => 'standalone' in window.navigator && window.navigator.standalone
-
-    // Checks if should display install popup notification:
-    if (isIos() && !isInStandaloneMode()) {
-      this.installBtn = 'block'
-    }
 
     // If user opts into geolocation browser prompt, run the following code. (Source: https://stackoverflow.com/questions/62481765/how-to-get-current-latitude-and-longitude-in-vuejs)
     // Note that https is required for geolocation API to work in Chrome: https://developer.chrome.com/blog/geolocation-on-secure-contexts-only/
@@ -515,7 +500,7 @@ export default {
     hideAppInstallBanner(e) {
       e.preventDefault()
 
-      this.installBtn = 'none'
+      this.pwaInstallBannerDisplay = 'none'
     },
     togglePlaceText(index, e) {
       this.openPlaceTextIndex = index
