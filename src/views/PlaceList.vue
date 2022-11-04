@@ -17,7 +17,7 @@
         <div class="place-header">
           <span class="material-symbols-outlined speech-toggle stopped" @click="togglePlaceTextSpeech(place.description, $event)">play_circle</span>
           <div class="place-header-meta">
-            <h2 @click="togglePlaceText(index, $event)" :data-name="place.name">
+            <h2 @click="togglePlaceText(index)" :data-name="place.name">
               {{ place.name }}
             </h2>
             <div class="distance">
@@ -516,10 +516,12 @@ export default {
 
       this.pwaInstallBannerDisplay = 'none'
     },
-    togglePlaceText(index, e) {
-      this.openPlaceTextIndex = index
-      const descriptionText = document.querySelector(`[data-index="${index}"]`)
-      descriptionText.scrollIntoView({ behavior: 'smooth' })
+    togglePlaceText(index) {
+      if (this.openPlaceTextIndex === index) {
+        this.openPlaceTextIndex = -1
+      } else {
+        this.openPlaceTextIndex = index
+      }
     },
     togglePlaceTextSpeech(textToSay, e) {
       let utterance = new SpeechSynthesisUtterance(textToSay)
