@@ -1,12 +1,6 @@
 <template>
   <div class="place-list" :id="loading ? 'loading' : 'loaded'">
-    <div :style="{ display: pwaInstallBannerDisplay }" class="install-banner">
-      <h3>Install this App<i class="material-symbols-outlined download-icon">download</i></h3>
-      <span>to easily access it from your home screen.</span>
-      <a @click="installer" href="" class="install-link">Install </a>
-      <a @click="hideAppInstallBanner" href="" class="no-thanks">No thanks</a>
-    </div>
-
+    <InstallBanner />
     <Header />
 
     <transition-group appear @before-enter="beforePlaceCardsEnter" @enter="asPlaceCardEnter" tag="ul" name="place-list">
@@ -117,57 +111,6 @@
 
   75% {
     opacity: 0;
-  }
-}
-
-// PWA install banner
-.install-banner {
-  position: relative;
-  display: block;
-  background: var(--dark-grey);
-  color: var(--grey);
-  width: 100%;
-  padding: 1em 1em 1.25em;
-  margin-top: 1.25em;
-  border-radius: 10px;
-
-  h3 {
-    font-size: 1.25em;
-  }
-
-  span {
-    display: inline-block;
-    margin-top: 0.25em;
-    margin-bottom: 1em;
-    font-size: 0.9em;
-    line-height: 1.1;
-  }
-
-  .download-icon {
-    position: relative;
-    top: 5px;
-    margin-left: 8px;
-
-    @media screen and (max-width: $medium) {
-      font-weight: 800;
-    }
-  }
-
-  .install-link {
-    @include button;
-    background: var(--white);
-    padding: 0.5em 0.75em;
-    font-size: 1em;
-    color: var(--black);
-    margin-right: 1em;
-
-    i {
-      margin-inline-start: 0.5em;
-    }
-  }
-
-  .no-thanks {
-    text-decoration: underline;
   }
 }
 
@@ -313,18 +256,18 @@
 import axios from 'axios'
 import gsap from 'gsap'
 import Header from '../components/Header'
+import InstallBanner from '../components/InstallBanner'
 
 export default {
   name: 'PlaceList',
 
   components: {
     Header,
+    InstallBanner,
   },
 
   data() {
     return {
-      pwaInstallBannerDisplay: 'none',
-      pwaInstallPrompt: undefined,
       placeData: [],
       lat: '',
       long: '',
