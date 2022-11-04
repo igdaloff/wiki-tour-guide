@@ -525,25 +525,33 @@ export default {
       let utterance = new SpeechSynthesisUtterance(textToSay)
       utterance.rate = 0.9
       const speech = window.speechSynthesis
-      const speechToggleButton = e.target
+      const clickedSpeechToggleButton = e.target
+      const allSpeechToggleButtons = document.querySelectorAll('.speech-toggle')
 
       if (e.target.classList.contains('stopped')) {
         speech.cancel()
         speech.speak(utterance)
+
+        allSpeechToggleButtons.forEach((btn) => {
+          btn.textContent = 'play_circle'
+          btn.classList.remove('playing')
+          btn.classList.add('stopped')
+        })
         e.target.textContent = 'stop_circle'
         e.target.classList.add('playing')
         e.target.classList.remove('stopped')
       } else {
         speech.cancel()
-        e.target.textContent = 'play_circle'
-        e.target.classList.add('stopped')
+        console.log('doesnt contain stopped')
         e.target.classList.remove('playing')
+        e.target.classList.add('stopped')
+        e.target.textContent = 'play_circle'
       }
 
       utterance.onend = function () {
-        speechToggleButton.classList.add('stopped')
-        speechToggleButton.classList.remove('playing')
-        speechToggleButton.textContent = 'play_circle'
+        clickedSpeechToggleButton.classList.add('stopped')
+        clickedSpeechToggleButton.classList.remove('playing')
+        clickedSpeechToggleButton.textContent = 'play_circle'
       }
     },
   },
