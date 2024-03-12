@@ -2,26 +2,10 @@
   <div class="home">
     <div class="grid">
       <div class="grid-lines-z">
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
-        <div class="grid-line grid-line-z"></div>
+        <div v-for="index in 11" :key="index" class="grid-line grid-line-z"></div>
       </div>
       <div class="grid-lines-x">
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
-        <div class="grid-line grid-line-x"></div>
+        <div v-for="index in 7" :key="index" class="grid-line grid-line-x"></div>
       </div>
       <div class="grid-fade"></div>
     </div>
@@ -33,8 +17,6 @@
     </header>
   </div>
 </template>
-
-<script></script>
 
 <style lang="scss">
 @import '../assets/mixins.scss';
