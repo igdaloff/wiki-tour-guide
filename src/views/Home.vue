@@ -117,12 +117,10 @@ $grid-color: #393939;
 @keyframes pulse-ring {
   0% {
     transform: scale(0.1);
-    opacity: 0.5;
   }
 
   100% {
     transform: scale(1.25);
-    opacity: 1;
   }
 }
 
