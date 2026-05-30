@@ -620,7 +620,7 @@ export default {
                 return deg * (Math.PI / 180);
               }
 
-              const snippet = placeDescription?.match(/^.{20,}?[.!?](?=\s[A-Z]|\s*$)/)?.[0] || '';
+              const snippet = placeDescription || '';
 
               // Store each place's data in an object to be appended to array below
               const placeDataObj = {
