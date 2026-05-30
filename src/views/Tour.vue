@@ -290,7 +290,8 @@
 }
 
 .tour-controls .stopped,
-.tour-controls .playing {
+.tour-controls .playing,
+.tour-controls .loading {
   position: relative;
   font-variation-settings: 'FILL' 1;
   cursor: pointer;
@@ -304,6 +305,17 @@
     outline-offset: 4px;
     border-radius: 50%;
   }
+}
+
+.tour-controls .loading {
+  animation: tts-spin 1s linear infinite;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@keyframes tts-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>
 
@@ -320,7 +332,9 @@ export default {
     return {
       loading: true,
       error: null,
-      tour: null
+      tour: null,
+      currentAudio: null,
+      cachedAudioUrl: null,
     };
   },
 
@@ -375,26 +389,55 @@ export default {
       return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     },
 
-    toggleSpeech(e) {
-      const btn = e.target;
-      const speech = window.speechSynthesis;
+    async toggleSpeech(e) {
+      const btn = e.currentTarget;
 
-      if (btn.classList.contains('stopped')) {
-        const utterance = new SpeechSynthesisUtterance(this.fullNarrative);
-        utterance.rate = 0.9;
-        speech.cancel();
-        speech.speak(utterance);
-        btn.textContent = 'stop_circle';
-        btn.classList.replace('stopped', 'playing');
-
-        utterance.onend = () => {
-          btn.textContent = 'play_circle';
-          btn.classList.replace('playing', 'stopped');
-        };
-      } else {
-        speech.cancel();
+      if (!btn.classList.contains('stopped')) {
+        if (this.currentAudio) {
+          this.currentAudio.pause();
+          this.currentAudio = null;
+        }
         btn.textContent = 'play_circle';
         btn.classList.replace('playing', 'stopped');
+        btn.classList.replace('loading', 'stopped');
+        return;
+      }
+
+      const play = (dataUrl) => {
+        const audio = new Audio(dataUrl);
+        this.currentAudio = audio;
+        btn.textContent = 'stop_circle';
+        btn.classList.replace('loading', 'playing');
+        btn.classList.replace('stopped', 'playing');
+        audio.play();
+        audio.onended = () => {
+          btn.textContent = 'play_circle';
+          btn.classList.replace('playing', 'stopped');
+          this.currentAudio = null;
+        };
+      };
+
+      if (this.cachedAudioUrl) {
+        play(this.cachedAudioUrl);
+        return;
+      }
+
+      btn.textContent = 'progress_activity';
+      btn.classList.replace('stopped', 'loading');
+
+      try {
+        const response = await fetch('/.netlify/functions/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: this.fullNarrative }),
+        });
+        const data = await response.json();
+        this.cachedAudioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+        play(this.cachedAudioUrl);
+      } catch (err) {
+        console.error('TTS failed:', err);
+        btn.textContent = 'play_circle';
+        btn.classList.replace('loading', 'stopped');
       }
     }
   }

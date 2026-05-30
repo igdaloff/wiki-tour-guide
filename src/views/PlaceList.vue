@@ -34,7 +34,9 @@
               {{ place.distance }} mi away<span class="material-symbols-outlined">directions_walk</span>
             </a>
           </div>
-          <h2><a :href="place.wikiUrl" target="_blank" rel="noopener">{{ place.name }}</a></h2>
+          <h2>
+            <a :href="place.wikiUrl" target="_blank" rel="noopener">{{ place.name }}</a>
+          </h2>
           <p class="place-snippet" v-if="place.snippet">{{ place.snippet }}</p>
           <div class="place-actions">
             <button
@@ -43,6 +45,7 @@
               :aria-label="`Play audio description of ${place.name}`">
               <span class="material-symbols-outlined">play_arrow</span>
               <span class="label-stopped">Listen to Entry</span>
+              <span class="label-loading">Loading Voice</span>
               <span class="label-playing">Stop Audio</span>
             </button>
             <button class="action-btn tour-action-btn" @click="startTour(place)">
@@ -258,7 +261,7 @@
   white-space: nowrap;
   @include hover-transition;
 
-  span {
+  .material-symbols-outlined {
     font-size: 1.5em;
     font-variation-settings: 'FILL' 0;
     line-height: 1;
@@ -270,7 +273,11 @@
   }
 
   &.stopped .label-playing,
-  &.playing .label-stopped {
+  &.stopped .label-loading,
+  &.loading .label-stopped,
+  &.loading .label-playing,
+  &.playing .label-stopped,
+  &.playing .label-loading {
     display: none;
   }
 
@@ -278,6 +285,15 @@
     background: var(--white);
     border-color: var(--white);
     color: var(--black);
+  }
+
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+
+    .material-symbols-outlined {
+      animation: sort-spin 1s linear infinite;
+    }
   }
 }
 
@@ -437,7 +453,8 @@ export default {
       openPlaceTextIndex: null,
       sortMode: 'curiosity',
       curioRank: [],
-      rankLoading: false
+      rankLoading: false,
+      currentAudio: null
     };
   },
 
@@ -478,6 +495,8 @@ export default {
   },
 
   created() {
+    this.audioCache = new Map();
+
     //Show PWA install button (see last section of this article: https://levelup.gitconnected.com/vue-pwa-example-298a8ea953c9)
     //Note that as of this writing, on mobile beforeinstallprompt is only supported on Chrome for Android, Android Browser, and Opera, and no major iOS browsers. There's a fix for iOS below.
     let pwaInstallPrompt;
@@ -601,7 +620,7 @@ export default {
                 return deg * (Math.PI / 180);
               }
 
-              const snippet = placeDescription?.match(/^[^.!?]+[.!?]/)?.[0] || '';
+              const snippet = placeDescription?.match(/^.{20,}?[.!?](?=\s[A-Z]|\s*$)/)?.[0] || '';
 
               // Store each place's data in an object to be appended to array below
               const placeDataObj = {
@@ -689,33 +708,62 @@ export default {
       localStorage.setItem('tour-place-cache-key', `place-data-cache-${latCache}.${longCache}`);
       this.$router.push('/tour');
     },
-    togglePlaceTextSpeech(textToSay, e) {
-      const utterance = new SpeechSynthesisUtterance(textToSay);
-      utterance.rate = 0.9;
-      const speech = window.speechSynthesis;
+    stopAllAudio() {
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio = null;
+      }
+      document.querySelectorAll('.speech-toggle').forEach(b => {
+        const ic = b.querySelector('.material-symbols-outlined');
+        if (ic) ic.textContent = 'play_arrow';
+        b.classList.remove('playing', 'loading');
+        b.classList.add('stopped');
+      });
+    },
+
+    async togglePlaceTextSpeech(textToSay, e) {
       const btn = e.currentTarget;
       const icon = btn.querySelector('.material-symbols-outlined');
 
-      if (btn.classList.contains('stopped')) {
-        speech.cancel();
-        speech.speak(utterance);
-
-        document.querySelectorAll('.speech-toggle').forEach(b => {
-          b.querySelector('.material-symbols-outlined').textContent = 'play_arrow';
-          b.classList.replace('playing', 'stopped');
-        });
-        icon.textContent = 'stop';
-        btn.classList.replace('stopped', 'playing');
-      } else {
-        speech.cancel();
-        icon.textContent = 'play_arrow';
-        btn.classList.replace('playing', 'stopped');
+      if (!btn.classList.contains('stopped')) {
+        this.stopAllAudio();
+        return;
       }
 
-      utterance.onend = () => {
-        icon.textContent = 'play_arrow';
-        btn.classList.replace('playing', 'stopped');
+      this.stopAllAudio();
+
+      const play = (dataUrl) => {
+        const audio = new Audio(dataUrl);
+        this.currentAudio = audio;
+        icon.textContent = 'stop';
+        btn.classList.replace('loading', 'playing');
+        btn.classList.replace('stopped', 'playing');
+        audio.play();
+        audio.onended = () => {
+          icon.textContent = 'play_arrow';
+          btn.classList.replace('playing', 'stopped');
+          this.currentAudio = null;
+        };
       };
+
+      if (this.audioCache.has(textToSay)) {
+        play(this.audioCache.get(textToSay));
+        return;
+      }
+
+      icon.textContent = 'progress_activity';
+      btn.classList.replace('stopped', 'loading');
+
+      try {
+        const { data } = await axios.post('/.netlify/functions/tts', { text: textToSay });
+        const dataUrl = `data:audio/mp3;base64,${data.audioContent}`;
+        this.audioCache.set(textToSay, dataUrl);
+        play(dataUrl);
+      } catch (err) {
+        console.error('TTS failed:', err);
+        icon.textContent = 'play_arrow';
+        btn.classList.replace('loading', 'stopped');
+      }
     }
   }
 };
