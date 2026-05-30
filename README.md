@@ -10,15 +10,16 @@ A mobile-first progressive web app that finds interesting Wikipedia-documented p
 
 3. **Generates a walking tour** — Tapping "Start Tour" on any place sends your nearby places to Claude Sonnet, which selects 3–4 stops and writes a structured tour: transitional narration between stops, a one-sentence highlight per location, and a warm closing. The tour is cached locally so it doesn't need to be regenerated on revisit.
 
-4. **Narrates the tour** — A listen button on the tour page reads the full narration aloud using the Web Speech API.
+4. **Narrates the tour** — A listen button on the tour page reads the full narration aloud using Google Cloud Text-to-Speech (Neural2 voice), with the generated audio cached in memory so replaying is instant.
 
-5. **Plays Wikipedia audio** — On the place list, a "Listen to Entry" button reads the Wikipedia description of each place aloud, also via the Web Speech API.
+5. **Plays Wikipedia audio** — On the place list, a "Listen to Entry" button reads the Wikipedia description of each place aloud via Google Cloud Text-to-Speech, also cached per session.
 
 ## Tech stack
 
 - **Frontend** — Vue 2, SCSS, deployed as a PWA
 - **Backend** — Netlify serverless functions (Node.js)
 - **AI** — Anthropic Claude API (Haiku for ranking, Sonnet for tour generation), with prompt caching
+- **Text-to-speech** — Google Cloud Text-to-Speech API (Neural2-F voice), proxied through a Netlify function to keep the API key server-side
 - **Data** — Wikipedia API (Geosearch, TextExtracts, PageImages, Info modules)
 - **Maps** — Google Maps deep links for walking directions
 
@@ -36,7 +37,12 @@ npm install -g netlify-cli
 netlify dev
 ```
 
-Set `ANTHROPIC_API_KEY` in a `.env` file or your Netlify environment variables.
+Set the following in a `.env` file or your Netlify environment variables:
+
+```
+ANTHROPIC_API_KEY=...
+GOOGLE_TTS_API_KEY=...
+```
 
 ```bash
 npm run build   # production build
