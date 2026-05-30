@@ -1,6 +1,13 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
+  devServer: {
+    proxy: {
+      '/.netlify/functions': {
+        target: 'http://localhost:9999',
+      },
+    },
+  },
   css: {
     loaderOptions: {
       sass: {

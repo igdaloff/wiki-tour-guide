@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(/usr/bin/git log *)",
+      "Bash(/usr/bin/git diff *)",
+      "Bash(/usr/bin/git add *)",
+      "Bash(/usr/bin/git commit *)",
+      "Bash(/usr/bin/git push *)",
+      "Bash(/usr/bin/git status *)"
+    ]
+  }
+}

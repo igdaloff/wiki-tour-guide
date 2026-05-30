@@ -54,7 +54,7 @@ $grid-color: #393939;
       height: 1000%;
       margin-left: -450%;
       border-radius: 100%;
-      border: 1px solid var(--dark-grey);
+      border: 1px solid var(--border-grey);
       animation: pulse-ring 5s ease-in infinite;
       transition: border 3s ease-out;
       opacity: 1;

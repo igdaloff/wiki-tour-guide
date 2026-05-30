@@ -4,9 +4,12 @@
   --white: #fff;
   --grey: #d9d9d9;
   --med-grey: #999;
+  --light-grey: #c0c0c0;
   --dark-grey: #575757;
+  --border-grey: #3e3e3e;
   --display: 'EB Garamond', georgia, serif;
-  --sans: 'Inconsolata', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono: 'Inconsolata', monospace;
   --serif: Georgia, Times, serif;
 }
 
@@ -55,7 +58,7 @@ p {
 
 h2 {
   font-size: 1.25em;
-  font-weight: 300;
+  font-weight: 600;
 }
 
 p {
