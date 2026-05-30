@@ -1,38 +1,49 @@
 <template>
-  <div class="place-list" :id="loading ? 'loading' : 'loaded'">
+  <div class="place-list" :id="loading ? 'loading' : 'loaded'" :aria-busy="loading.toString()">
     <InstallBanner />
     <Header />
 
     <div class="sort-controls" v-if="!loading && placeData.length">
       <span class="sort-label">Sort By</span>
-      <button class="sort-btn" :class="{ active: sortMode === 'curiosity' }" @click="setSortMode('curiosity')">
+      <button
+        class="sort-btn"
+        :class="{ active: sortMode === 'curiosity' }"
+        @click="setSortMode('curiosity')"
+        :aria-pressed="(sortMode === 'curiosity').toString()">
         <span class="material-symbols-outlined sort-spinner" v-if="rankLoading">progress_activity</span>
         <span class="material-symbols-outlined sort-ai-icon" v-else>auto_awesome</span>
         Curiosity
       </button>
-      <button class="sort-btn" :class="{ active: sortMode === 'distance' }" @click="setSortMode('distance')">
+      <button
+        class="sort-btn"
+        :class="{ active: sortMode === 'distance' }"
+        @click="setSortMode('distance')"
+        :aria-pressed="(sortMode === 'distance').toString()">
         Distance
       </button>
     </div>
 
     <transition-group appear @before-enter="beforePlaceCardsEnter" @enter="asPlaceCardEnter" tag="ul" name="place-list">
       <li v-for="(place, index) in sortedPlaces" :key="place.name" :data-index="index">
-        <div class="place-image-container" @click="togglePlaceText(place.name, $event)">
-          <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" :data-name="place.name" />
-        </div>
+        <a class="place-image-container" :href="place.wikiUrl" target="_blank" rel="noopener">
+          <img :src="place.imgUrl" :alt="`Photo of ${place.name}`" />
+        </a>
         <div class="place-header">
           <div class="distance" v-if="place.distance">
             <a :href="place.mapUrl" target="_blank">
               {{ place.distance }} mi away<span class="material-symbols-outlined">directions_walk</span>
             </a>
           </div>
-          <h2 @click="togglePlaceText(index)" :data-name="place.name">
-            {{ place.name }}
-          </h2>
+          <h2><a :href="place.wikiUrl" target="_blank" rel="noopener">{{ place.name }}</a></h2>
+          <p class="place-snippet" v-if="place.snippet">{{ place.snippet }}</p>
           <div class="place-actions">
-            <button class="action-btn speech-toggle stopped" @click="togglePlaceTextSpeech(place.description, $event)">
+            <button
+              class="action-btn speech-toggle stopped"
+              @click="togglePlaceTextSpeech(place.description, $event)"
+              :aria-label="`Play audio description of ${place.name}`">
               <span class="material-symbols-outlined">play_arrow</span>
-              Play Audio
+              <span class="label-stopped">Listen to Entry</span>
+              <span class="label-playing">Stop Audio</span>
             </button>
             <button class="action-btn tour-action-btn" @click="startTour(place)">
               <span class="material-symbols-outlined">route</span>
@@ -56,6 +67,10 @@
       <span>expanding your search radius</span>
       <em> (a feature which doesn't exist yet)</em>.
     </p>
+
+    <span aria-live="polite" class="sr-only">{{
+      loading ? 'Searching for nearby places…' : `${sortedPlaces.length} places found`
+    }}</span>
 
     <span v-if="loading" class="orb">
       <span class="loading-text">Searching…</span>
@@ -154,6 +169,12 @@
   border-radius: 10px;
   overflow: hidden;
   height: 250px;
+  display: block;
+
+  &:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
 
   img {
     position: absolute;
@@ -178,8 +199,17 @@
     font-size: 1.35em;
     font-weight: 500;
     line-height: 1.2;
-    cursor: pointer;
     margin-bottom: 0.5em;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      @include hover-transition;
+
+      &:hover {
+        color: var(--light-grey);
+      }
+    }
   }
 }
 
@@ -238,6 +268,17 @@
     border-color: var(--white);
     color: var(--white);
   }
+
+  &.stopped .label-playing,
+  &.playing .label-stopped {
+    display: none;
+  }
+
+  &.playing {
+    background: var(--white);
+    border-color: var(--white);
+    color: var(--black);
+  }
 }
 
 .place-description {
@@ -277,6 +318,17 @@
       color: var(--white);
     }
   }
+}
+
+.place-snippet {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--light-grey);
+  margin-bottom: 0.75em;
 }
 
 .place-actions {
@@ -549,10 +601,13 @@ export default {
                 return deg * (Math.PI / 180);
               }
 
+              const snippet = placeDescription?.match(/^[^.!?]+[.!?]/)?.[0] || '';
+
               // Store each place's data in an object to be appended to array below
               const placeDataObj = {
                 name: placeName,
                 description: placeDescription,
+                snippet,
                 wikiUrl: placeWikiUrl,
                 imgUrl: placeImgUrl,
                 mapUrl: placeMapUrl,
@@ -645,7 +700,7 @@ export default {
         speech.cancel();
         speech.speak(utterance);
 
-        document.querySelectorAll('.speech-toggle').forEach((b) => {
+        document.querySelectorAll('.speech-toggle').forEach(b => {
           b.querySelector('.material-symbols-outlined').textContent = 'play_arrow';
           b.classList.replace('playing', 'stopped');
         });

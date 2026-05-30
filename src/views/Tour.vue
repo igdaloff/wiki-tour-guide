@@ -16,7 +16,7 @@
 
     <div v-else class="tour-content">
       <div class="tour-controls">
-        <span class="material-symbols-outlined speech-toggle stopped" @click="toggleSpeech">play_circle</span>
+        <button class="material-symbols-outlined speech-toggle stopped" @click="toggleSpeech" aria-label="Play tour narration">play_circle</button>
         <span class="tour-label">Listen to tour</span>
       </div>
 
@@ -289,11 +289,21 @@
   }
 }
 
-.stopped,
-.playing {
+.tour-controls .stopped,
+.tour-controls .playing {
   position: relative;
   font-variation-settings: 'FILL' 1;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
 }
 </style>
 

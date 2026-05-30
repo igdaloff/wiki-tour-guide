@@ -30,8 +30,10 @@ export default {
       // Stash the event so it can be triggered later
       pwaInstallPrompt = e;
 
-      // Show previously hidden banner
-      this.pwaInstallBannerDisplay = 'block';
+      // Show previously hidden banner (mobile only)
+      if (window.matchMedia('(max-width: 600px)').matches) {
+        this.pwaInstallBannerDisplay = 'block';
+      }
     });
 
     this.installer = () => {

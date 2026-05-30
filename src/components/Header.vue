@@ -1,14 +1,10 @@
 <template>
   <header class="main-header">
     <nav>
-      <span v-if="route.name === 'Tour'" class="material-symbols-outlined back-btn" @click="router.push('/list')"
-        >arrow_back</span
-      >
+      <button v-if="route.name === 'Tour'" class="material-symbols-outlined back-btn" @click="router.push('/list')" aria-label="Back to places">arrow_back</button>
       <h1>{{ route.name === 'Tour' ? 'Walking Tour' : 'Places Nearby' }}</h1>
-      <span v-if="route.name !== 'Tour'" class="material-symbols-outlined info-btn" @click.stop="showInfo = !showInfo"
-        >info</span
-      >
-      <div class="info-tooltip" v-if="showInfo">
+      <button v-if="route.name !== 'Tour'" class="material-symbols-outlined info-btn" @click.stop="showInfo = !showInfo" :aria-expanded="showInfo.toString()" aria-label="About this app">info</button>
+      <div class="info-tooltip" v-if="showInfo" role="status">
         <p>
           Wiki Tour Guide finds interesting Wikipedia-documented places near you, then uses AI to build a personalized
           walking tour with narration for each stop.
@@ -47,14 +43,24 @@ nav {
   }
 }
 
+.back-btn,
+.info-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  line-height: 1;
+}
+
 .back-btn {
   cursor: pointer;
   font-variation-settings: 'wght' 200;
   opacity: 0.7;
   transition: opacity 0.25s ease;
 
-  &:hover {
+  &:hover, &:focus-visible {
     opacity: 1;
+    outline: none;
   }
 }
 
@@ -66,8 +72,9 @@ nav {
   opacity: 0.7;
   transition: opacity 0.2s ease;
 
-  &:hover {
+  &:hover, &:focus-visible {
     opacity: 1;
+    outline: none;
   }
 }
 

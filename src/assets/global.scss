@@ -104,6 +104,18 @@ button,
   -webkit-appearance: button;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 // TODO: Refactor this so we don't have to add new elements here each time we add new html to place-list view that we want to transition in
 .fade-enter-from {
   &.home,
